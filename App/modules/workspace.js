@@ -1,6 +1,7 @@
 module.exports = function(Environment){
+    var fs = require('fs'); // this engine requires the fs module
     var imaps = require('imap-simple');
-
+//GUI section
         Environment.app
         .get("/workspace",
         function(req, res) { 
@@ -9,13 +10,34 @@ module.exports = function(Environment){
                 res.send("<script>location='/';</script>"); //just redirect
                 return;
             }
+            var body = fs.readFileSync(Environment.APPDIR + 'views/' + 'workspace.htm', 'utf8');
+
             res.render('window-tpl', {
                 title: '2C',
                 width: 1024,
                 height: 600,
-                body: 'workspace.htm'});
+                body: body});
             });
+            Environment.app
+            .get("/workspace/trafaret-upload",
+            function(req, res) { 
+                if (!req.session.login) {
+                    //auth broken
+                    res.send("<script>location='/';</script>"); //just redirect
+                    return;
+                }
+                var body = fs.readFileSync(Environment.APPDIR + 'views/' + 'trafaret-upload.htm', 'utf8');
+                body = body.replace('<?=$path_to?>', ''+ req.query.to +'');
 
+                res.render('dialog-tpl', {
+                    title: '',
+                    width: 400,
+                    height: 200,
+                    body: body});
+                });
+    
+
+//API section
             Environment.app
             .get("/workspace/api/templates",
             function(req, res) { 
@@ -77,5 +99,30 @@ module.exports = function(Environment){
                     });
     
                     });
+
+                    Environment.app
+            .post("/workspace/api/trafaret-upload",//TODO unfinished
+            function(req, res) { 
+                if (!req.session.login) {
+                    //auth broken
+                    res.send("<script>location='/';</script>"); //just redirect
+                    return;
+                }
+                var to = req.body.to;
+              //  var trafaret = req.query.trafaret;
+                var body = '';
+                filePath = to+'test1.ods';
+                req.on('data', function(data) {
+                    body += data;
+                });
+            
+                req.on('end', function (){
+                    fs.appendFile(filePath, body, function() {
+                        res.end();
+                    });
+                });
+
+
+            });
 
 };

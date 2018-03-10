@@ -3,13 +3,12 @@ module.exports = function(Environment) {
         Environment.app.engine('php', function (filePath, options, callback) { // define the template engine
           fs.readFile(filePath, function (err, content) {
             if (err) return callback(new Error(err));
-            var body = fs.readFileSync(Environment.APPDIR + 'views/' + options.body, 'utf8');
             // this is an extremely simple template engine
             var rendered = content.toString()
             .replace('<?=$title?>', ''+ options.title +'')
             .replace('<?=$height?>', ''+ options.height +'')
             .replace('<?=$width?>', ''+ options.width +'')
-            .replace('<?=$body?>', ''+ body +'');
+            .replace('<?=$body?>', ''+ options.body +'');
             return callback(null, rendered);
           });
         });

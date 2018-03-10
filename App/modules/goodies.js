@@ -13,7 +13,7 @@ module.exports = {
                 var pending = list.length;
         
                 if (!pending)
-                    return done(null, {icon: "/static/img/folder-symbolic.svg",text: path.basename(dir), children: results});
+                    return done(null, {icon: "/static/img/folder-symbolic.svg",text: path.basename(dir),id:dir, children: results});
         
                 list.forEach(function(file) {
                     file = path.resolve(dir, file);
@@ -23,6 +23,7 @@ module.exports = {
                                 results.push({
                                     text: path.basename(file),
                                       icon: "/static/img/system-file-manager-symbolic.svg",
+                                      id:file,
                                     children: res
                                 });
                                 
@@ -33,6 +34,7 @@ module.exports = {
                         else {
                             results.push({
                                 text: path.basename(file),
+                                id:file,
                                 icon: "/static/img/libreoffice-calc.svg"
                             });
                            

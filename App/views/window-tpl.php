@@ -12,8 +12,7 @@
     var win = nw.Window.get();
     win.setResizable(true);
     win.resizeTo(<?=$width?>,<?=$height?>);
-    win.moveTo(Math.round(screen.width/2)-Math.round(win.width/2),
-               Math.round(screen.height/2)-Math.round(win.height/2));
+    win.maximize();
     </script>
 </head>
 

@@ -1,4 +1,5 @@
 module.exports = function(Environment){
+    var fs = require('fs'); // this engine requires the fs module
     var imaps = require('imap-simple');
 
         Environment.app
@@ -11,11 +12,12 @@ module.exports = function(Environment){
         .get("/users/login",
         function(req, res) { 
         //login form
+        var body = fs.readFileSync(Environment.APPDIR + 'views/' + 'login.htm', 'utf8');
         res.render('dialog-tpl', {
             title: 'Вход в систему',
             width: 400,
             height: 200,
-            body: 'login.htm'});
+            body: body});
         });
 
         Environment.app

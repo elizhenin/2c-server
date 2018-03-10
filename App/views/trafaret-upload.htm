@@ -1,0 +1,26 @@
+<script type="text/javascript">
+
+var layout= {
+            name: 'layout',
+            padding: 0,
+            margin: 10,
+            panels: [
+                {type: 'main',size: '100%',resizable: false,
+                content:
+                '<div>'+
+                '<form id="form" method="post" enctype="multipart/form-data" action="/workspace/api/trafaret-upload">'+
+                '<input type="hidden" name="to" value="<?=$path_to?>"/>'+
+                '<input type="file" name="trafaret" accept="application/vnd.oasis.opendocument.spreadsheet,.ods"/>'+
+                '</div>'+
+                '<div>'+
+                '<button class="btn" name="upload" onclick="$(\'#form\').submit();">Загрузить</button>'+
+                '</form>'+
+                '</div>'
+
+            }
+        ]
+        };
+
+$('#body').w2layout(layout);
+
+</script>
