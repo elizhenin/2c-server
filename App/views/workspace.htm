@@ -1,0 +1,76 @@
+<script src="/static/js/jstree.min.js"></script>
+<script type="text/javascript">
+    var config = {
+        layout: {
+            name: 'layout',
+            padding: 0,
+            margin: 10,
+            panels: [
+                {type: 'left', size: '40%', resizable: true, title: 'Трафареты'},
+                {type: 'main', size: '60%',resizable: false, title: 'Отчеты'}
+            ]
+        }
+    };
+
+    $('#body').w2layout(config.layout);
+    w2ui.layout.content('left', '<div id="templates-tree"/>');
+    w2ui.layout.content('main', '<div id="reports-tree"/>');
+
+$('#templates-tree').jstree({
+		'core' : {
+			'data' : {
+				"url" : "/workspace/api/templates",
+				"dataType" : "json" 
+			}
+		}
+    });
+    $('#reports-tree').jstree({
+		'core' : {
+			'data' : {
+				"url" : "/workspace/api/reports",
+				"dataType" : "json" 
+			}
+		}
+	});
+
+</script>
+
+<script type="text/javascript">
+// Create an empty menubar
+var menu = new nw.Menu({type: 'menubar'});
+
+// Create a submenu as the 2nd level menu
+var submenu = new nw.Menu();
+submenu.append(new nw.MenuItem({ label: 'Новый отчет' }));
+submenu.append(new nw.MenuItem({ label: 'Новый трафарет' }));
+
+// Create and append the 1st level menu to the menubar
+menu.append(new nw.MenuItem({
+  label: 'Операции',
+  submenu: submenu
+}));
+
+// Create a submenu as the 2nd level menu
+var submenu = new nw.Menu();
+submenu.append(new nw.MenuItem({ label: 'Справка' }));
+submenu.append(new nw.MenuItem({ label: 'О программе' }));
+
+// Create and append the 1st level menu to the menubar
+menu.append(new nw.MenuItem({
+  label: 'Помощь',
+  submenu: submenu
+}));
+
+menu.append(new nw.MenuItem({ enabled: false, label: '|' }));
+
+menu.append(new nw.MenuItem(
+    { label: 'Выход',
+      click: function(){
+        nw.Window.get().menu = '';
+        location='/users/logout';
+      }
+     }));
+
+// Assign it to `window.menu` to get the menu displayed
+nw.Window.get().menu = menu;
+</script>

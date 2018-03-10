@@ -1,0 +1,15 @@
+{
+  "name": "2c-server",
+  "version": "1.0.0",
+  "main": "App/server.js",
+  "author": "elizhenin",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "~1.17.2",
+    "cookie-parser": "~1.4.3",
+    "express": "~4.15.3",
+    "express-session": "~1.15.5",
+    "imap-simple": "~3.1.0",
+    "multer": "^1.3.0"
+  }
+}

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Отправка сведений о прикреплении</title>
+    <link rel="stylesheet" type="text/css" href="static/css/w2ui-1.4.3.css" />
+    <script src="static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="static/js/w2ui-1.4.3.js"></script>
+    <script type="text/javascript" src="static/js/filesaver.js"></script>
+    <script type="text/javascript">
+    var win = nw.Window.get();
+    win.resizeTo(410,230);
+    win.moveTo(Math.round(screen.width/2)-Math.round(win.width/2),
+               Math.round(screen.height/2)-Math.round(win.height/2));
+    </script>
+</head>
+
+<body style="padding: 0px; margin:0px">
+    <script type="text/javascript">
+        w2utils.locale('static/js/ru-ru.json');
+    </script>
+
+    <div style="width: 100vw; height: 100vh;">
+        <div id="form" style="width: 100%; height: 100%;"></div>
+    </div>
+    <script type="text/javascript">
+                $().w2form({
+                    name: 'upload',
+                    style: 'border: 0px; background-color: transparent;',
+                    formHTML: '<div class="w2ui-page page-0">' +
+                        '    <div class="w2ui-field">' +
+                        '<p><b>1. Не рекомендуется загружать файлы объемом<br/> более 20Mb<br/><br/>' +
+                        '2. Возможна загрузка до 10 файлов одновременно</b></p><br/>' +
+                        '        <label>Файл CSV:</label>' +
+                        '        <div>' +
+                        '           <input name="csvfile" type="file" style="width: 100%" accept="text/csv, .csv"/>' +
+                        '        </div>' +
+                        '    </div>' +
+                        '</div>' +
+                        '<div class="w2ui-buttons">' +
+                        '    <button class="btn" name="logout" type="button">Выйти</button>' +
+                        '    <button class="btn" name="reset" type="button">Очистить</button>' +
+                        '    <button class="btn" name="send" type="button">Отправить</button>' +
+                        '</div>',
+                    url: '/persons/upload',
+                    fields: [{
+                        field: 'csvfile',
+                        type: 'file',
+                        required: true,
+                        options: {
+                            max: 10,
+                            maxFileSize: 0
+                        }
+                    }],
+                    actions: {
+                        "send": function(target, data) {
+                            var obj = this;
+
+                            obj.save(null, function(data) {
+                                switch (data.status) {
+                                    case 'success':
+                                        {
+                                            w2alert(data.message);
+                                            console.log(obj);
+                                            obj.clear();
+                                            break;
+                                        }
+                                    case 'error':
+                                        {
+                                            w2alert(data.message);
+                                            break;
+                                        }
+                                }
+
+                            });
+
+                        },
+                        "reset": function() {
+                            this.clear();
+                        },
+                        "logout": function() {
+                            location = '/users/logout';
+                        }
+                    }
+                });
+
+$('#form').w2render('upload');
+    </script>
+
+
+</body>
+
+</html>
