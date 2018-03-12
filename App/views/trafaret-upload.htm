@@ -1,26 +1,75 @@
 <script type="text/javascript">
-
-var layout= {
-            name: 'layout',
-            padding: 0,
-            margin: 10,
-            panels: [
-                {type: 'main',size: '100%',resizable: false,
-                content:
-                '<div>'+
-                '<form id="form" method="post" enctype="multipart/form-data" action="/workspace/api/trafaret-upload">'+
-                '<input type="hidden" name="to" value="<?=$path_to?>"/>'+
-                '<input type="file" name="trafaret" accept="application/vnd.oasis.opendocument.spreadsheet,.ods"/>'+
-                '</div>'+
-                '<div>'+
-                '<button class="btn" name="upload" onclick="$(\'#form\').submit();">Загрузить</button>'+
-                '</form>'+
-                '</div>'
-
+    $().w2form({
+        name: 'upload',
+        style: 'border: 0px; background-color: transparent;',
+        formHTML: '<div class="w2ui-page page-0">' +
+            '    <div class="w2ui-field">' +
+            '        <label>Названиие отчета:</label>' +
+            '        <div>' +
+            '           <input name="name" type="text" style="width: 100%"/>' +
+            '        </div>' +
+            '    </div>' +
+            '    <div class="w2ui-field">' +
+            '        <label>Файл трафарета:</label>' +
+            '        <div>' +
+            '           <input name="trafaret" type="file" style="width: 100%" accept="application/vnd.oasis.opendocument.spreadsheet,.ods"/>' +
+            '           <input type="hidden" name="to"/>' +
+            '        </div>' +
+            '    </div>' +
+            '</div>' +
+            '<div class="w2ui-buttons">' +
+            '    <button class="btn" name="reset" type="button">Очистить</button>' +
+            '    <button class="btn" name="send" type="button">Отправить</button>' +
+            '</div>',
+        url: '/workspace/api/trafaret-upload',
+        fields: [{
+            field: 'trafaret',
+            type: 'file',
+            required: true,
+            options: {
+                max: 1,
+                maxFileSize: 0
             }
-        ]
-        };
 
-$('#body').w2layout(layout);
+        }, {
+            field: 'name',
+            type: 'text',
+            required: true
+        }, {
+            field: 'to',
+            type: 'text'
+        }],
+        record: {
+            to: '<?=$path_to?>'
+        },
+        actions: {
+            "send": function(target, data) {
+                var obj = this;
 
+                obj.save(null, function(data) {
+                    switch (data.status) {
+                        case 'success':
+                            {
+                                w2alert(data.message);
+                                console.log(obj);
+                                obj.clear();
+                                break;
+                            }
+                        case 'error':
+                            {
+                                w2alert(data.message);
+                                break;
+                            }
+                    }
+
+                });
+
+            },
+            "reset": function() {
+                this.clear();
+            }
+        }
+    });
+
+    $('#body').w2render('upload');
 </script>

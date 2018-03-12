@@ -23,7 +23,7 @@ module.exports = {
                                 results.push({
                                     text: path.basename(file),
                                       icon: "/static/img/system-file-manager-symbolic.svg",
-                                      id:file,
+                                      id:file+'/',
                                     children: res
                                 });
                                 
