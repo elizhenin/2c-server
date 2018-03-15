@@ -82,7 +82,7 @@ module.exports = function(Environment) {
                 if (!fs.existsSync(dir)) {
                     fs.mkdirSync(dir);
                 }
-                var dir = dir + domain;
+                dir = dir + domain;
                 if (!fs.existsSync(dir)) {
                     fs.mkdirSync(dir);
                 }
@@ -113,13 +113,13 @@ module.exports = function(Environment) {
                     buffer = new Buffer(req.body.record.trafaret[0].content, 'base64');
                     fs.writeFile(dir+filename, buffer, function(err) {
                             if (err) {
-                                return console.log(err);
                                 res.send("{status: 'error',message: 'Ошибка сохранения'}");
+                                return console.log(err);
                             }
                             console.log(filename + " was saved in subdir");
                             res.send("{status: 'success',message: 'Трафарет успешно добавлен'}");
                         });
-                    }else{res.send("{status: 'error',message: 'Трафарет принимается только в формате ods'}");};
+                    }else{res.send("{status: 'error',message: 'Трафарет принимается только в формате ods'}");}
                     });
 
 
