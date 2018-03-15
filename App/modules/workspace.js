@@ -1,7 +1,7 @@
 module.exports = function(Environment) {
     var fs = require('fs'); // this engine requires the fs module
     var imaps = require('imap-simple');
-
+    var Goodies = require(Environment.APPDIR + 'modules/goodies');
     //GUI section
     Environment.app
         .get("/workspace",
@@ -12,7 +12,9 @@ module.exports = function(Environment) {
                     return;
                 }
                 var body = fs.readFileSync(Environment.APPDIR + 'views/' + 'workspace.htm', 'utf8');
-
+                domain = Goodies.login2domain(req.session.login);
+            
+                body = body.replace('<?=$domain?>',domain);
                 res.render('window-tpl', {
                     title: '2C',
                     width: 1024,
@@ -50,8 +52,6 @@ module.exports = function(Environment) {
                     res.send("<script>location='/';</script>"); //just redirect
                     return;
                 }
-                var Goodies = require(Environment.APPDIR + 'modules/goodies');
-                var fs = require('fs');
                 var dir = Environment.uploads_dir + "templates/";
                 if (!fs.existsSync(dir)) {
                     fs.mkdirSync(dir);
@@ -74,17 +74,9 @@ module.exports = function(Environment) {
                     res.send("<script>location='/';</script>"); //just redirect
                     return;
                 }
-                var Goodies = require(Environment.APPDIR + 'modules/goodies');
-                var fs = require('fs');
-                domain = req.session.login.split("@");
-                domain = domain[1];
-                domain = domain.split(".");
-                domain = domain.reverse();
-
-                if (domain.length == 2) {
-                    domain = '';
-                } else {
-                    domain = domain[2].toUpperCase() + "/";
+                domain = Goodies.login2domain(req.session.login);
+                if (domain != '') {
+                    domain+='/';
                 }
                 var dir = Environment.uploads_dir + 'reports/';
                 if (!fs.existsSync(dir)) {

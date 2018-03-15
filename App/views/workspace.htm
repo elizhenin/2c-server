@@ -39,6 +39,13 @@ var reports_pstyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padd
 });
 
             }
+        },
+        onRender: function (event) {
+            var domain = '<?=$domain?>';
+        if(domain != ''){
+        //only admins cat add trafarets
+        this.remove('new');
+        };
         }
     },    // w2toolbar object for the panel
     show : {               // indicates what sections are shown
@@ -70,6 +77,8 @@ var reports_pstyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padd
     $('#body').w2layout(config.layout);
     w2ui.layout.content('left', '<div id="templates-tree"/>');
     w2ui.layout.content('main', '<div id="reports-tree"/>');
+   
+
 
 //jstree config
 $('#templates-tree').jstree({

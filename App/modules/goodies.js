@@ -46,6 +46,18 @@ module.exports = {
             });
         };
         directoryTreeToObj(dir, done);
+    },
+    login2domain: function(login) {
+        domain = login.split("@");
+                domain = domain[1];
+                domain = domain.split(".");
+                domain = domain.reverse();
+                if (domain.length == 2) {
+                    domain = '';
+                } else {
+                    domain = domain[2].toUpperCase();
+                }
+        return domain;
     }
 
 };
