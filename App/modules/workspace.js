@@ -13,8 +13,8 @@ module.exports = function(Environment) {
                 }
                 var body = fs.readFileSync(Environment.APPDIR + 'views/' + 'workspace.htm', 'utf8');
                 domain = Goodies.login2domain(req.session.login);
-            
-                body = body.replace('<?=$domain?>',domain);
+
+                body = body.replace('<?=$domain?>', domain);
                 res.render('window-tpl', {
                     title: '2C',
                     width: 1024,
@@ -76,7 +76,7 @@ module.exports = function(Environment) {
                 }
                 domain = Goodies.login2domain(req.session.login);
                 if (domain != '') {
-                    domain+='/';
+                    domain += '/';
                 }
                 var dir = Environment.uploads_dir + 'reports/';
                 if (!fs.existsSync(dir)) {
@@ -106,21 +106,21 @@ module.exports = function(Environment) {
                     return;
                 }
                 var dir = req.body.record.to;
-                var filename = req.body.record.name+'.ods';
-                
+                var filename = req.body.record.name + '.ods';
+
                 buffer = new Buffer(req.body.record.trafaret[0].content, 'base64');
-                if(req.body.record.trafaret[0].type == 'application/vnd.oasis.opendocument.spreadsheet'){
+                if (req.body.record.trafaret[0].type == 'application/vnd.oasis.opendocument.spreadsheet') {
                     buffer = new Buffer(req.body.record.trafaret[0].content, 'base64');
-                    fs.writeFile(dir+filename, buffer, function(err) {
-                            if (err) {
-                                res.send("{status: 'error',message: 'Ошибка сохранения'}");
-                                return console.log(err);
-                            }
-                            console.log(filename + " was saved in subdir");
-                            res.send("{status: 'success',message: 'Трафарет успешно добавлен'}");
-                        });
-                    }else{res.send("{status: 'error',message: 'Трафарет принимается только в формате ods'}");}
+                    fs.writeFile(dir + filename, buffer, function(err) {
+                        if (err) {
+                            res.send("{status: 'error',message: 'Ошибка сохранения'}");
+                            return console.log(err);
+                        }
+                        console.log(filename + " was saved in subdir");
+                        res.send("{status: 'success',message: 'Трафарет успешно добавлен'}");
                     });
+                } else { res.send("{status: 'error',message: 'Трафарет принимается только в формате ods'}"); }
+            });
 
 
 };
