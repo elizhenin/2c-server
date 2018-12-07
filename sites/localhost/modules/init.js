@@ -19,6 +19,16 @@ function ПоказатьСообщение(Текст) {
     alert(Текст);
 }
 
+function ДождатьсяЭлемента(Элемент, Функция, Период = 1000)
+{
+    var Попытки = setInterval(function() {
+        if (typeof Элемент != 'undefined') { 
+            clearInterval(Попытки);
+            Функция();
+        }
+      }, Период);
+}
+
 window.ФорматироватьДатуВремя = function(ДатаВремя, Относительное = true) {
     var Сегодня = new Date();
     var День = ("0" + ДатаВремя.getDate()).slice(-2) + "." + (ДатаВремя.getMonth() + 1) + "." + ДатаВремя.getFullYear();
@@ -71,6 +81,22 @@ window.ЗагрузитьМодуль = function(ИмяМодуля) {
     ТелоМодуля = ЗапросСервера.responseText;
     ЗапросСервера = undefined;
     eval(ТелоМодуля);
+};
+
+window.ЗагрузитьМодульАсинхронно = function(ИмяМодуля) {
+    var ЗапросСервера = new XMLHttpRequest();
+    ЗапросСервера.open('GET', window.location.protocol + '//' + window.location.host + '/modules/' + ИмяМодуля + '.js', true);
+    ЗапросСервера.onload = function(e) {
+        if (ЗапросСервера.readyState === 4) {
+            if (ЗапросСервера.status === 200) {
+                ТелоМодуля = ЗапросСервера.responseText;
+                eval(ТелоМодуля);
+            }
+        }
+    };
+
+    ЗапросСервера.send(null);
+
 };
 
 window.ЗагрузитьСтраницу = function(ИмяМодуля) {
