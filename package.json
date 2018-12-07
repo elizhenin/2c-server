@@ -1,0 +1,9 @@
+{
+    "name": "2c-server",
+    "version": "1.0.0",
+    "main": "App/main.js",
+   "author": "Evgeny Lizhenin",
+    "dependencies": {
+        "express": "^4.16.3"
+    }
+}
