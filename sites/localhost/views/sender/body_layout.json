@@ -1,0 +1,28 @@
+{
+    "pattern":"3L",
+    "offsets": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+    },
+    "cells": [{
+            "id": "a",
+            "text":"Трафареты отчетов",
+            "header": true,
+            "collapse": false
+        },
+        {
+            "id": "b",
+            "text":"Периоды и отчеты",
+            "header": true,
+            "collapse": false
+        },
+        {
+            "id": "c",
+            "text":"Подробнее",
+            "header": true,
+            "collapse": false
+        }
+    ]
+}

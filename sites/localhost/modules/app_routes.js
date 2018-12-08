@@ -1,5 +1,8 @@
 var РежимыРаботы = {
-    "/": "workspace/home"
+    "/": "workspace/home",
+    "/admin": "workspace/admin",
+    "/sender": "workspace/sender",
+    "receiver": "workspace/receiver"
 }
 
 window.ОпределитьРежим = function() {

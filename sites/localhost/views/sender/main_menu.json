@@ -1,0 +1,9 @@
+{
+"id":"a_menu",
+    "items":[
+        {"id":"t1", "text":"Top 1", "items":[
+            {"id":"ch1", "text":"child 1"},
+            {"id":"ch2", "text":"child 2"}
+        ]}
+    ]
+}

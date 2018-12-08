@@ -1,4 +1,5 @@
-ДождатьсяЭлемента(window.MainLayout, function () {
+ДождатьсяЭлемента(window.MainLayout, function() {
+    var role = "sender";
     window.MainMenu = window.MainLayout.cells("a").attachMenu();
-    window.MainMenu.loadStruct("/views/main_menu.json");
+    window.MainMenu.loadStruct("/views/" + role + "/main_menu.json");
 });
