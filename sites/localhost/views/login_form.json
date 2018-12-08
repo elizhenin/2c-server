@@ -1,0 +1,7 @@
+[
+    {"type":"settings","position":"label-left","labelWidth":100,"inputWidth":140,
+       "labelAlign":"right"},
+    {"name":"login","type": "input",     "label": "Имя",      "value": ""},
+    {"name":"password","type": "password",  "label": "Пароль",  "value": ""},
+    {"type":"button",   "name":"save", "value":"Войти","position":"relative", "inputLeft":100,"inputTop":15}
+]

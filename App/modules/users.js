@@ -12,7 +12,8 @@ module.exports = function (Environment) {
                     Response = {
                         Статус: status,
                         Токен: token,
-                        Сообщение: message
+                        Сообщение: message,
+                        Роль:"admin" //TODO make check users group
                     };
                     Response = JSON.stringify(Response);
                     return Response;
@@ -25,8 +26,10 @@ module.exports = function (Environment) {
                         date.setDate(date.getDate() + 3);
                         var Token = {
                             login: Request.login,
-                            expires: date.toISOString()
+                            expires: date.toISOString(),
+                            randomSeed:Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10)
                         };
+                        
                         Token = Goodies.base64encode(encodeURIComponent(JSON.stringify(Token)));
                         fs.writeFile(Environment.DBTOKENSDIR + "/" + Token, Token, function (err) {
                             if (err) {
