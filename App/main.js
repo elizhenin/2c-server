@@ -2,7 +2,10 @@ var Environment = {};
 Environment.APPDIR = __dirname + "/";
 Environment.ROOTDIR = Environment.APPDIR + "../";
 Environment.SITESDIR = Environment.ROOTDIR + "sites";
+Environment.DBDIR = Environment.ROOTDIR + "DB";
+Environment.DBTOKENSDIR = Environment.DBDIR + "/tokens";
 Environment.upload_limit = '100mb';
+Environment.api_url_prefix = "/api";
 Environment.listen_port = 80;
 Environment.workers_per_cpu = 1;
 
@@ -23,7 +26,7 @@ if (cluster.isMaster) { // master process
 
     });
 } else { // worker process
-    var Goodies = require('./goodies');
+  
     var express = require('express');
     var path = require('path');
     var fs = require('fs');
@@ -33,31 +36,8 @@ if (cluster.isMaster) { // master process
         limit: Environment.upload_limit
     })); // to support JSON-encoded bodies
 
-    Environment.app
-        .post("/api/users/login",
-            function (req, res) {
-                var PAM = require('authenticate-pam');
-                Request = req.body;
-                Request.password = decodeURIComponent(Goodies.base64decode(Request.password));
-                var ResponsePrepare = function (status, token) {
-                    Response = {
-                        Статус: status,
-                        Токен: token
-                    };
-                    Response = JSON.stringify(Response);
-                    return Response;
-                    
-                };
-                PAM.authenticate(Request.login, Request.password, function (err) {
-                    if (err) {
-                        res.send(ResponsePrepare(false,""));
-                    } else {
-                        res.send(ResponsePrepare(true,"generated_token"));
-                    }
-                });
-
-            });
-
+    var AssignAPI = require('./modules/api');
+    AssignAPI(Environment);
     //Static sender
     Environment.app
         .get(/(.+)$/,

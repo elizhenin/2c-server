@@ -1,19 +1,25 @@
-window.ЗапросыАПИ =  {
-    GET : {
-        Sync : function(Адрес, Параметры = {}){
+window.ЗапросыАПИ = {
+    GET: {
+        Sync: function (Адрес, Параметры = {}) {
             var ЗапросСервера = new XMLHttpRequest();
-            ЗапросСервера.open('GET', window.location.protocol + '//' + window.location.host +"/api" + Адрес + АдресИзОбъекта(Параметры), false);
+            ЗапросСервера.open('GET', window.location.protocol + '//' + window.location.host + "/api" + Адрес + АдресИзОбъекта(Параметры), false);
             ЗапросСервера.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            if ("ТокенАвторизации" in Хранилище) {
+                ЗапросСервера.setRequestHeader("Authorization", "Bearer " + Хранилище.getItem("ТокенАвторизации"));
+            }
             ЗапросСервера.send(null);
             ТелоОтвета = ЗапросСервера.responseText;
             ЗапросСервера = undefined;
-            return(ТелоОтвета);
+            return (ТелоОтвета);
         },
-        Async : function(Адрес, Параметры = {}, Функция){
+        Async: function (Адрес, Параметры = {}, Функция) {
             var ЗапросСервера = new XMLHttpRequest();
-            ЗапросСервера.open('GET', window.location.protocol + '//' + window.location.host +"/api" + Адрес + АдресИзОбъекта(Параметры), true);
+            ЗапросСервера.open('GET', window.location.protocol + '//' + window.location.host + "/api" + Адрес + АдресИзОбъекта(Параметры), true);
             ЗапросСервера.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            ЗапросСервера.onload = function(e) {
+            if ("ТокенАвторизации" in Хранилище) {
+                ЗапросСервера.setRequestHeader("Authorization", "Bearer " + Хранилище.getItem("ТокенАвторизации"));
+            }
+            ЗапросСервера.onload = function (e) {
                 if (ЗапросСервера.readyState === 4) {
                     if (ЗапросСервера.status === 200) {
                         ТелоОтвета = ЗапросСервера.responseText;
@@ -21,27 +27,33 @@ window.ЗапросыАПИ =  {
                     }
                 }
             };
-        
+
             ЗапросСервера.send(null);
-        
+
         }
 
     },
-    POST : {
-        Sync : function(Адрес, Параметры = {}, Тело = ""){
+    POST: {
+        Sync: function (Адрес, Параметры = {}, Тело = "") {
             var ЗапросСервера = new XMLHttpRequest();
-            ЗапросСервера.open('POST', window.location.protocol + '//' + window.location.host +"/api" + Адрес + АдресИзОбъекта(Параметры), false);
+            ЗапросСервера.open('POST', window.location.protocol + '//' + window.location.host + "/api" + Адрес + АдресИзОбъекта(Параметры), false);
             ЗапросСервера.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            if ("ТокенАвторизации" in Хранилище) {
+                ЗапросСервера.setRequestHeader("Authorization", "Bearer " + Хранилище.getItem("ТокенАвторизации"));
+            }
             ЗапросСервера.send(Тело);
             ТелоОтвета = ЗапросСервера.responseText;
             ЗапросСервера = undefined;
-            return(ТелоОтвета);
+            return (ТелоОтвета);
         },
-        Async : function(Адрес, Параметры = {}, Тело = "", Функция){
+        Async: function (Адрес, Параметры = {}, Тело = "", Функция) {
             var ЗапросСервера = new XMLHttpRequest();
-            ЗапросСервера.open('POST', window.location.protocol + '//' + window.location.host +"/api"+ Адрес + АдресИзОбъекта(Параметры), true);
+            ЗапросСервера.open('POST', window.location.protocol + '//' + window.location.host + "/api" + Адрес + АдресИзОбъекта(Параметры), true);
             ЗапросСервера.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            ЗапросСервера.onload = function(e) {
+            if ("ТокенАвторизации" in Хранилище) {
+                ЗапросСервера.setRequestHeader("Authorization", "Bearer " + Хранилище.getItem("ТокенАвторизации"));
+            }
+            ЗапросСервера.onload = function (e) {
                 if (ЗапросСервера.readyState === 4) {
                     if (ЗапросСервера.status === 200) {
                         ТелоОтвета = ЗапросСервера.responseText;
@@ -49,26 +61,31 @@ window.ЗапросыАПИ =  {
                     }
                 }
             };
-        
+
             ЗапросСервера.send(Тело);
-        
+
         }
 
     },
-    Пользователь : {
-        Вход : function(Имя, Пароль){
+    Пользователь: {
+        Вход: function (Имя, Пароль) {
             ТелоЗапроса = {
-                login : Имя,
-                password : btoa(encodeURIComponent(Пароль))
+                login: Имя,
+                password: btoa(encodeURIComponent(Пароль))
             };
             ТелоЗапроса = JSON.stringify(ТелоЗапроса);
-            Результат = JSON.parse(ЗапросыАПИ.POST.Sync("/users/login",{},ТелоЗапроса));
-            if (Результат.Статус){
-                Хранилище.setItem("ТокенАвторизации",Результат.Токен);
+            Результат = JSON.parse(ЗапросыАПИ.POST.Sync("/users/login", {}, ТелоЗапроса));
+            if (Результат.Статус) {
+                Хранилище.setItem("ТокенАвторизации", Результат.Токен);
+                console.log(decodeURIComponent(atob(Результат.Токен)));
             } else {
-                Хранилище.setItem("ТокенАвторизации","");
+                Хранилище.setItem("ТокенАвторизации", "");
                 Хранилище.removeItem("ТокенАвторизации");
             }
+            return Результат;
+        },
+        Выход: function (Токен) {
+            return JSON.parse(ЗапросыАПИ.GET.Sync("/users/logout", {token:Токен}, null));
         }
     }
 }
