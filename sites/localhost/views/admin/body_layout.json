@@ -1,5 +1,5 @@
 {
-    "pattern":"3L",
+    "pattern":"2U",
     "offsets": {
         "top": 0,
         "right": 0,
@@ -8,19 +8,13 @@
     },
     "cells": [{
             "id": "a",
-            "text":"Трафареты отчетов",
+            "text":"Пользователи",
             "header": true,
             "collapse": false
         },
         {
             "id": "b",
-            "text":"Периоды и отчеты",
-            "header": true,
-            "collapse": false
-        },
-        {
-            "id": "c",
-            "text":"Подробнее",
+            "text":"Группы",
             "header": true,
             "collapse": false
         }

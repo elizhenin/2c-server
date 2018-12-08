@@ -1,5 +1,8 @@
+window.ГлавноеМеню = function(Роль = "sender",Выравнивание = "left"){
 ДождатьсяЭлемента(window.MainLayout, function() {
-    var role = "sender";
     window.MainMenu = window.MainLayout.cells("a").attachMenu();
-    window.MainMenu.loadStruct("/views/" + role + "/main_menu.json");
+    MainMenu.loadStruct("/views/" + Роль + "/main_menu.json");
+    MainMenu.setAlign(Выравнивание);
 });
+
+}

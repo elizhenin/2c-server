@@ -1,5 +1,3 @@
-window.ТокенАвторизации = "kfgeshoghsoj";
-
 СтрокаАдреса = window.location.href;
 if (СтрокаАдреса.indexOf('?') > -1) {
     СтрокаАдреса = СтрокаАдреса.split('?')[1];
@@ -10,6 +8,14 @@ window.ПараметрыАдреса = {};
     Пара = Пара.split('=');
     ПараметрыАдреса[Пара[0]] = decodeURIComponent(Пара[1] || '');
 });
+
+window.АдресИзОбъекта = function ( Объект ) {
+    if (Объект.length > 0)
+    return '?'+Object.keys(Объект).reduce(function(a,k){
+        a.push(k+'='+encodeURIComponent(Объект[k]));return a;
+    },[]).join('&');
+    else return "";
+  }
 
 function ПоказатьСистемноеСообщение(Текст) {
     global.alert(Текст);
@@ -155,12 +161,12 @@ window.СменитьРежим = function(Режим) {
 
 
 window.Хранилище = localStorage;
-
+window.ТокенАвторизации = Хранилище.getItem("ТокенАвторизации");
 
 if (typeof nw != 'undefined') { // игнорим в браузере
     ЗагрузитьМодуль("app_presets");
 }
-//ЗагрузитьМодуль("app_requests");
+ЗагрузитьМодуль("app_requests");
 ЗагрузитьМодуль("app_routes");
 
 РежимРаботы = ОпределитьРежим();

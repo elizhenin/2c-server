@@ -2,6 +2,7 @@ var Environment = {};
 Environment.APPDIR = __dirname + "/";
 Environment.ROOTDIR = Environment.APPDIR + "../";
 Environment.SITESDIR = Environment.ROOTDIR + "sites";
+Environment.upload_limit = '100mb';
 Environment.listen_port = 80;
 Environment.workers_per_cpu = 1;
 
@@ -14,7 +15,7 @@ if (cluster.isMaster) { // master process
         cluster.fork();
     }
     // Listen for dying workers
-    cluster.on('exit', function(worker) {
+    cluster.on('exit', function (worker) {
 
         // Replace the dead worker
         console.log('Worker ' + worker.id + ' died and replaced');
@@ -22,13 +23,45 @@ if (cluster.isMaster) { // master process
 
     });
 } else { // worker process
+    var Goodies = require('./goodies');
     var express = require('express');
     var path = require('path');
     var fs = require('fs');
+    var bodyParser = require('body-parser');
     Environment.app = express();
+    Environment.app.use(bodyParser.json({
+        limit: Environment.upload_limit
+    })); // to support JSON-encoded bodies
+
+    Environment.app
+        .post("/api/users/login",
+            function (req, res) {
+                var PAM = require('authenticate-pam');
+                Request = req.body;
+                Request.password = decodeURIComponent(Goodies.base64decode(Request.password));
+                var ResponsePrepare = function (status, token) {
+                    Response = {
+                        Статус: status,
+                        Токен: token
+                    };
+                    Response = JSON.stringify(Response);
+                    return Response;
+                    
+                };
+                PAM.authenticate(Request.login, Request.password, function (err) {
+                    if (err) {
+                        res.send(ResponsePrepare(false,""));
+                    } else {
+                        res.send(ResponsePrepare(true,"generated_token"));
+                    }
+                });
+
+            });
+
+    //Static sender
     Environment.app
         .get(/(.+)$/,
-            function(req, res) {
+            function (req, res) {
                 domain = req.hostname;
                 console.log('process id: "' + cluster.worker.id + '"');
                 console.log('reached request for "' + domain + '"');
@@ -53,7 +86,7 @@ if (cluster.isMaster) { // master process
             });
 
     var port = process.env.PORT || Environment.listen_port;
-    Environment.app.listen(port, function() {
+    Environment.app.listen(port, function () {
         console.log("Listening on " + port);
     });
 }
