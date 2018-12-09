@@ -1,3 +1,15 @@
 to work on 80 port:
 sudo apt-get install libcap2-bin
 sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\``
+
+
+//add role groups:
+groupadd 2c_role_admin
+groupadd 2c_role_editor
+groupadd 2c_role_sender
+groupadd 2c_role_receiver
+//add user sample:
+useradd 2c_admin
+passwd 2c_admin
+//set role of user
+usermod -a -G 2c_role_admin 2c_admin
