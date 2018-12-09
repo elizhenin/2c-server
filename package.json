@@ -2,8 +2,9 @@
     "name": "2c-server",
     "version": "1.0.0",
     "main": "App/main.js",
-   "author": "Evgeny Lizhenin",
+    "author": "Evgeny Lizhenin",
     "dependencies": {
+        "authenticate-pam": "^1.0.2",
         "express": "^4.16.3"
     }
 }
