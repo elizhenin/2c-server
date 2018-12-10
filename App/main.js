@@ -6,7 +6,7 @@ Environment.DBDIR = Environment.ROOTDIR + "DB";
 Environment.DBTOKENSDIR = Environment.DBDIR + "/tokens";
 Environment.upload_limit = '100mb';
 Environment.api_url_prefix = "/api";
-Environment.listen_port = 80;
+Environment.listen_port = 8080;
 Environment.workers_per_cpu = 1;
 
 var cluster = require('cluster');
@@ -18,7 +18,7 @@ if (cluster.isMaster) { // master process
         cluster.fork();
     }
     // Listen for dying workers
-    cluster.on('exit', function (worker) {
+    cluster.on('exit', function(worker) {
 
         // Replace the dead worker
         console.log('Worker ' + worker.id + ' died and replaced');
@@ -26,7 +26,7 @@ if (cluster.isMaster) { // master process
 
     });
 } else { // worker process
-  
+
     var express = require('express');
     var path = require('path');
     var fs = require('fs');
@@ -41,7 +41,7 @@ if (cluster.isMaster) { // master process
     //Static sender
     Environment.app
         .get(/(.+)$/,
-            function (req, res) {
+            function(req, res) {
                 domain = req.hostname;
                 console.log('process id: "' + cluster.worker.id + '"');
                 console.log('reached request for "' + domain + '"');
@@ -66,7 +66,7 @@ if (cluster.isMaster) { // master process
             });
 
     var port = process.env.PORT || Environment.listen_port;
-    Environment.app.listen(port, function () {
+    Environment.app.listen(port, function() {
         console.log("Listening on " + port);
     });
 }
