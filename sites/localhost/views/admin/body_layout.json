@@ -1,5 +1,5 @@
 {
-    "pattern":"2U",
+    "pattern":"3W",
     "offsets": {
         "top": 0,
         "right": 0,
@@ -14,7 +14,13 @@
         },
         {
             "id": "b",
-            "text":"Группы",
+            "text":"Организации",
+            "header": true,
+            "collapse": false
+        },
+        {
+            "id": "c",
+            "text":"Группы организаций",
             "header": true,
             "collapse": false
         }

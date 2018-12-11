@@ -8,8 +8,20 @@ groupadd 2c_role_admin
 groupadd 2c_role_editor
 groupadd 2c_role_sender
 groupadd 2c_role_receiver
+//add organisation's groups
+groupadd 2c_org_org1
+groupadd 2c_org_org2
+groupadd 2c_org_org3
+//add sender groups (groups of users of organisation's groups)
+groupadd 2c_group_group1
+groupadd 2c_group_group2
 //add user sample:
 useradd 2c_admin
 passwd 2c_admin
 //set role of user
 usermod -a -G 2c_role_admin 2c_admin
+//set organisation's group (for senders)
+usermod -a -G 2c_org_org1 2c_ivanov
+//set group of organisation's, which will send reports
+//no way to add group to group, so should add all users from one group to other
+usermod -a -G 2c_group_group1 2c_ivanov
