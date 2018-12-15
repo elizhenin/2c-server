@@ -24,12 +24,13 @@ module.exports = function (Environment) {
     Environment.app
         .get(Environment.api_url_prefix + api_documents_prefix + "/reports/add",
             function (req, res) {
-                //add new report directory and it's required subdirectory structures
+                //add new report directory and it's required subdirectory structures, set user and group.
                 res.send(false);
             });
     Environment.app
         .get(Environment.api_url_prefix + api_documents_prefix + "/reports/update",
             function (req, res) {
+                //rename directory, change user, change group, or all of above
                 res.send(false);
             });
     Environment.app
@@ -107,13 +108,14 @@ module.exports = function (Environment) {
             function (req, res) {
                 /*
                     this function, or set of functions in future, required as data backend
-                    for OnlyOffice Macros subsustem.
-                    Macroses will ask server for data in some cells
-                                        of some rows 
-                                            of some worksheets
-                                                of some files
-                                                    of some periods
-                                                        of some reports....
+                    for OnlyOffice Macros subsystem.
+                    Macroses will ask server for data
+                                        in some cells
+                                            of some rows 
+                                                of some worksheets
+                                                    of some files
+                                                        of some periods
+                                                            of some reports....
                         and server must return requested information.
                     There more than one way to implement parsing of ods/xls/xlsx sheets, so - not now.
                 */
