@@ -1,15 +1,35 @@
-module.exports = function(Environment) {
+module.exports = function (Environment) {
     var fs = require('fs');
     var AuthWrapper = require('./auth-wrapper');
     var Goodies = require("./goodies");
+    var api_users_prefix = "/users";
+
+    var TokenMiddleware = function (req, res, next) {
+        if ("authorization" in req.headers) {
+            var Token = req.headers.authorization.replace("Bearer ", "");
+            var TokenCheckFilename = Environment.DBTOKENSDIR + "/" + Token;
+            
+            if (
+                fs.existsSync(TokenCheckFilename) &&
+                (!(fs.lstatSync(TokenCheckFilename).isDirectory()))
+            ) {
+                var TokenCheck = fs.readFileSync(TokenCheckFilename).toString();
+                TokenCheck = JSON.parse(decodeURIComponent(Goodies.base64decode(TokenCheck)));
+                req.AuthToken = Token;
+                req.AuthTokenDetails = TokenCheck;
+            }
+        }
+       next();
+    };
+    Environment.app.use(TokenMiddleware);
 
     Environment.app
-        .post(Environment.api_url_prefix + "/users/login",
-            function(req, res) {
+        .post(Environment.api_url_prefix + api_users_prefix + "/login",
+            function (req, res) {
                 Request = req.body;
                 Request.login;
                 Request.password = decodeURIComponent(Goodies.base64decode(Request.password));
-                var ResponsePrepare = function(status, token, message) {
+                var ResponsePrepare = function (status, token, message) {
                     Response = {
                         Статус: status,
                         Токен: token,
@@ -18,7 +38,7 @@ module.exports = function(Environment) {
                     Response = JSON.stringify(Response);
                     return Response;
                 };
-                AuthWrapper.auth(Request.login, Request.password, function(err) {
+                AuthWrapper.auth(Request.login, Request.password, function (err) {
                     if (err) {
                         res.send(ResponsePrepare(false, "", "Неправильная пара логин/пароль"));
                     } else {
@@ -32,7 +52,7 @@ module.exports = function(Environment) {
                         };
 
                         Token = Goodies.base64encode(encodeURIComponent(JSON.stringify(Token)));
-                        fs.writeFile(Environment.DBTOKENSDIR + "/" + Token, Token, function(err) {
+                        fs.writeFile(Environment.DBTOKENSDIR + "/" + Token, Token, function (err) {
                             if (err) {
                                 res.send(ResponsePrepare(false, "", "Ошибка сохранения токена"));
                                 return console.log(err);
@@ -43,24 +63,21 @@ module.exports = function(Environment) {
                 });
             });
     Environment.app
-        .get(Environment.api_url_prefix + "/users/logout",
-            function(req, res) {
-                var url = require('url');
-                var url_parts = url.parse(req.url, true);
-                var query = url_parts.query;
+        .get(Environment.api_url_prefix + api_users_prefix + "/logout",
+            function (req, res) {
                 var Response;
-                var ResponsePrepare = function(status, token, message) {
+                var ResponsePrepare = function (status, token, message) {
                     Response = {
-                        Статус: status,
+                        Статус: status,  // true/false
                         Токен: token,
                         Сообщение: message
                     };
                     Response = JSON.stringify(Response);
                     return Response;
                 };
-                if (fs.existsSync(Environment.DBTOKENSDIR + "/" + query.token)) {
-                    fs.unlinkSync(Environment.DBTOKENSDIR + "/" + query.token);
-                    console.log("token " + query.token + " unset");
+                if (fs.existsSync(Environment.DBTOKENSDIR + "/" + req.AuthToken)) {
+                    fs.unlinkSync(Environment.DBTOKENSDIR + "/" + req.AuthToken);
+                    console.log("token " + req.AuthToken + " unset");
                     Response = ResponsePrepare(true, "", "Токен удален");
                 } else Response = ResponsePrepare(false, "", "Нет такого токена");
                 res.send(Response);

@@ -4,8 +4,8 @@ Environment.ROOTDIR = Environment.APPDIR + "../";
 Environment.SITESDIR = Environment.ROOTDIR + "sites";
 Environment.DBDIR = Environment.ROOTDIR + "DB";
 Environment.DBTOKENSDIR = Environment.DBDIR + "/tokens";
+Environment.DBREPORTSSDIR = Environment.DBDIR + "/reports";
 Environment.upload_limit = '100mb';
-Environment.api_url_prefix = "/api";
 Environment.listen_port = 8080;
 Environment.workers_per_cpu = 1;
 

@@ -85,8 +85,22 @@ window.ЗапросыАПИ = {
             }
             return Результат;
         },
-        Выход: function(Токен) {
-            return JSON.parse(ЗапросыАПИ.GET.Sync("/users/logout", { token: Токен }, null));
+        Выход: function() {
+            return JSON.parse(ЗапросыАПИ.GET.Sync("/users/logout", {}, null));
+        },
+        Список: function() {
+            var ГотовыйСписок = {rows:[]};
+            var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/get_users_list", {}, null));
+            
+            for (var i=0; i< ОтветСервера.Пользователи.length; i++){
+                ГотовыйСписок.rows.push(
+                    {
+                        id:i+1,
+                        data:[ОтветСервера.Пользователи[i]]
+                    }
+                );
+            }
+           return ГотовыйСписок;
         }
     }
 }

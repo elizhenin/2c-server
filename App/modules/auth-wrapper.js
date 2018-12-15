@@ -1,10 +1,10 @@
 module.exports = {
-    auth: function(login, password, next) {
+    auth: function (login, password, next) {
         var PAM = require('authenticate-pam');
         PAM.authenticate("2c_" + login, password, next);
     },
 
-    userRole: function(login) {
+    userRole: function (login) {
         login = "2c_" + login;
         var execSync = require('child_process').execSync;
         result = execSync('groups ' + login).toString('utf8');
@@ -18,18 +18,29 @@ module.exports = {
                 }
             }
         };
-        cleanResult = result.filter(function() { return true });
+        cleanResult = result.filter(function () {
+            return true
+        });
         var Role = false;
         if (cleanResult.length > 0) Role = cleanResult[0];
         return Role;
     },
 
-    createUser: function(login, password) {
+    createUser: function (login, password) {
 
     },
 
-    getList: function() {
-
+    getList: function () {
+        var execSync = require('child_process').execSync;
+        result = execSync('getent passwd | grep "2c_"').toString('utf8');
+        result = result.split("\n");
+        var CleanResult = [];
+        result.forEach(element => {
+            element = element.split(':')[0].replace("2c_", "");
+            if (element.length > 0) CleanResult.push(element);
+        });
+        console.log(CleanResult);
+        return (CleanResult);
     }
 
 }
