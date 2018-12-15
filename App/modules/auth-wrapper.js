@@ -39,8 +39,73 @@ module.exports = {
             element = element.split(':')[0].replace("2c_", "");
             if (element.length > 0) CleanResult.push(element);
         });
-        console.log(CleanResult);
         return (CleanResult);
-    }
+    },
 
+    getOrgByUser: function (user) {
+        user = "2c_" + user;
+        var execSync = require('child_process').execSync;
+        result = execSync('groups ' + user).toString('utf8');
+        result = result.split(":")[1].trim().split(" ");
+        for (var key in result) {
+            if (result.hasOwnProperty(key)) {
+                if (!result[key].startsWith("2c_org_")) {
+                    delete(result[key]);
+                } else {
+                    result[key] = result[key].replace("2c_org_", "");
+                }
+            }
+        };
+        cleanResult = result.filter(function () {
+            return true
+        });
+        var Organisations = false;
+        if (cleanResult.length > 0) Organisations = cleanResult;
+        return Organisations;
+    },
+    
+    getGroupsByUser: function (user) {
+        user = "2c_" + user;
+        var execSync = require('child_process').execSync;
+        result = execSync('groups ' + user).toString('utf8');
+        result = result.split(":")[1].trim().split(" ");
+        for (var key in result) {
+            if (result.hasOwnProperty(key)) {
+                if (!result[key].startsWith("2c_group_")) {
+                    delete(result[key]);
+                } else {
+                    result[key] = result[key].replace("2c_group_", "");
+                }
+            }
+        };
+        cleanResult = result.filter(function () {
+            return true
+        });
+        var Groups = false;
+        if (cleanResult.length > 0) Groups = cleanResult;
+        return Groups;
+    },
+
+    getOrgList: function () {
+        var execSync = require('child_process').execSync;
+        result = execSync('getent group | grep "2c_org_"').toString('utf8');
+        result = result.split("\n");
+        var CleanResult = [];
+        result.forEach(element => {
+            element = element.split(':')[0].replace("2c_org_", "");
+            if (element.length > 0) CleanResult.push(element);
+        });
+        return CleanResult;
+    },
+    getGroupList: function () {
+        var execSync = require('child_process').execSync;
+        result = execSync('getent group | grep "2c_group_"').toString('utf8');
+        result = result.split("\n");
+        var CleanResult = [];
+        result.forEach(element => {
+            element = element.split(':')[0].replace("2c_group_", "");
+            if (element.length > 0) CleanResult.push(element);
+        });
+        return CleanResult;
+    },
 }
