@@ -1,5 +1,5 @@
 if(typeof (window.Справочники)=="undefined") window.Справочники = {};
-window.Справочники.Роли = JSON.parse(ЗагрузитьФайлСинхронно("/subtitles/roles.json"));
+window.Справочники.Роли = JSON.parse(ЗагрузитьФайлСинхронно("/views/subtitles/roles.json"));
 
 document.addEventListener('DOMContentLoaded', function() {
     ЗагрузитьМодуль("menubar");
