@@ -5,5 +5,6 @@ module.exports = function (Environment) {
     Users(Environment);
     var RoleAdmin = require('./role/admin');
     RoleAdmin(Environment);
-
+    var Documents = require('./decuments');
+    Documents(Environment);
 }
