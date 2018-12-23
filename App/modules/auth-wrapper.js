@@ -34,11 +34,13 @@ module.exports = {
         } catch (err) {
             result = err;
         }
+        if(password.length > 0) {
         try {
             result += "\n" + execSync('echo "' + password + '\\n' + password + '" | passwd ' + login).toString('utf8');
         } catch (err) {
             result+= err;
         }
+    }else result += "password empty - not changed\n";
         return result;
     },
 
