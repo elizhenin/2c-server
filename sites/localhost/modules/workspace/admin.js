@@ -28,9 +28,9 @@ document.addEventListener('DOMContentLoaded', function () {
             switch (id) {
                 case "create":
                     {
-                        var id_salt = Math.random() +"";
+                        var id_salt = Math.random() + "";
                         Окна.createWindow({
-                            id: "useredit"+id_salt,
+                            id: "useredit" + id_salt,
                             text: "Создать Пользователя",
                             left: 10,
                             top: 10,
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             center: true,
                             resize: true
                         });
-                        РедакторПользователя = Окна.window("useredit"+id_salt).attachForm();
+                        РедакторПользователя = Окна.window("useredit" + id_salt).attachForm();
                         РедакторПользователя.loadStruct("/views/admin/user_edit_form.json", "json");
                         РедакторПользователя.attachEvent("onButtonClick", function (id) {
                             switch (id) {
@@ -47,15 +47,16 @@ document.addEventListener('DOMContentLoaded', function () {
                                     {
                                         var Имя = РедакторПользователя.getInput("login").value;
                                         var Пароль = РедакторПользователя.getInput("password").value;
-                                        var Роль = РедакторПользователя.getInput("role").value;
-                                        //var Результат = ЗапросыАПИ.Пользователи.Сохранить(Имя, Пароль, Роль);
-                                        Окна.window("useredit"+id_salt).close();
+                                        var Роль = РедакторПользователя.getSelect("role").value;
+                                        var Результат = ЗапросыАПИ.Пользователи.Сохранить(Имя, Пароль, Роль);
+                                        Окна.window("useredit" + id_salt).close();
+                                        break;
                                     }
                                 default:
                                     {}
                             }
                         });
-
+break;
                     }
                 default:
                     {}

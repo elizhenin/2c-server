@@ -101,6 +101,15 @@ window.ЗапросыАПИ = {
                 );
             }
            return ГотовыйСписок;
+        },
+        Сохранить: function(Имя, Пароль, Роль) {
+            var Параметры = {
+                login: Имя,
+                password: Пароль,
+                role: Роль
+            };
+            var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/add_user", Параметры, null));
+            console.log(ОтветСервера);
         }
     },
     Организации: {

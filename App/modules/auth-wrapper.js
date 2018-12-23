@@ -27,7 +27,49 @@ module.exports = {
     },
 
     createUser: function (login, password) {
+        login = "2c_" + login;
+        var execSync = require('child_process').execSync;
+        try {
+            result = execSync('useradd ' + login).toString('utf8');
+        } catch (err) {
+            result = err;
+        }
+        try {
+            result += "\n" + execSync('echo "' + password + '\\n' + password + '" | passwd ' + login).toString('utf8');
+        } catch (err) {
+            result+= err;
+        }
+        return result;
+    },
 
+    setUserRole: function (login, role) {
+        login = "2c_" + login;
+        role = "2c_role_" + role;
+        var execSync = require('child_process').execSync;
+        try {
+        result = execSync('gpasswd -d ' + login + ' ' + '2c_role_admin').toString('utf8');
+    } catch (err) {
+        result = err;
+    }try {
+        result += "\n" + execSync('gpasswd -d ' + login + ' ' + '2c_role_editor').toString('utf8');
+    } catch (err) {
+        result+= err;
+    }try {
+        result += "\n" + execSync('gpasswd -d ' + login + ' ' + '2c_role_sender').toString('utf8');
+    } catch (err) {
+        result+= err;
+    }try {
+        result += "\n" + execSync('gpasswd -d ' + login + ' ' + '2c_role_receiver').toString('utf8');
+    } catch (err) {
+        result+= err;
+    }try {
+
+        result += "\n" + execSync('gpasswd -a ' + login + ' ' + role).toString('utf8');
+    } catch (err) {
+        result+= err;
+    }
+
+        return result;
     },
 
     getList: function () {
@@ -63,7 +105,7 @@ module.exports = {
         if (cleanResult.length > 0) Organisations = cleanResult;
         return Organisations;
     },
-    
+
     getGroupsByUser: function (user) {
         user = "2c_" + user;
         var execSync = require('child_process').execSync;
