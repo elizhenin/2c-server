@@ -54,6 +54,26 @@ module.exports = function (Environment) {
 
                 res.send(Response);
             });
+            Environment.app
+            .get(Environment.api_url_prefix + api_role_admin_prefix + "/set_user_org",
+                function (req, res) {
+                    Request = req.query;
+                    var Response;
+                    var ResponsePrepare = function (status, items, message) {
+                        Response = {
+                            Статус: status, // true/false
+                            Отладка: items,
+                            Сообщение: message
+                        };
+                        Response = JSON.stringify(Response);
+                        return Response;
+                    };
+                    var setUserOrg = AuthWrapper.setUserOrg(Request.login,Request.org);
+    
+                    Response = ResponsePrepare(true, setUserOrg, "Организация пользователя назначена");
+    
+                    res.send(Response);
+                });
     Environment.app
         .get(Environment.api_url_prefix + api_role_admin_prefix + "/get_org_list",
             function (req, res) {

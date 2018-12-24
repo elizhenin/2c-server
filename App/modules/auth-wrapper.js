@@ -34,42 +34,32 @@ module.exports = {
         } catch (err) {
             result = err;
         }
-        if(password.length > 0) {
-        try {
-            result += "\n" + execSync('echo "' + password + '\\n' + password + '" | passwd ' + login).toString('utf8');
-        } catch (err) {
-            result+= err;
-        }
-    }else result += "password empty - not changed\n";
+        if (password.length > 0) {
+            try {
+                result += "\n" + execSync('echo "' + password + '\\n' + password + '" | passwd ' + login).toString('utf8');
+            } catch (err) {
+                result += err;
+            }
+        } else result += "password empty - not changed\n";
         return result;
     },
 
     setUserRole: function (login, role) {
-        login = "2c_" + login;
-        role = "2c_role_" + role;
+        var currentRole = this.userRole(login);
+        var result = "";
         var execSync = require('child_process').execSync;
         try {
-        result = execSync('gpasswd -d ' + login + ' ' + '2c_role_admin').toString('utf8');
-    } catch (err) {
-        result = err;
-    }try {
-        result += "\n" + execSync('gpasswd -d ' + login + ' ' + '2c_role_editor').toString('utf8');
-    } catch (err) {
-        result+= err;
-    }try {
-        result += "\n" + execSync('gpasswd -d ' + login + ' ' + '2c_role_sender').toString('utf8');
-    } catch (err) {
-        result+= err;
-    }try {
-        result += "\n" + execSync('gpasswd -d ' + login + ' ' + '2c_role_receiver').toString('utf8');
-    } catch (err) {
-        result+= err;
-    }try {
+            result += "\n" + execSync('gpasswd -d 2c_' + login + ' ' + '2c_role_' + currentRole).toString('utf8');
+        } catch (err) {
+            result += err;
+        }
+        
+        try {
 
-        result += "\n" + execSync('gpasswd -a ' + login + ' ' + role).toString('utf8');
-    } catch (err) {
-        result+= err;
-    }
+            result += "\n" + execSync('usermod -a -G 2c_role_' + role + ' 2c_' + login).toString('utf8');
+        } catch (err) {
+            result += err;
+        }
 
         return result;
     },
@@ -140,6 +130,28 @@ module.exports = {
             if (element.length > 0) CleanResult.push(element);
         });
         return CleanResult;
+    },
+
+    setUserOrg: function (login, org) {
+        var currentOrg = this.getOrgByUser(login);
+        var result = "";
+        var execSync = require('child_process').execSync;
+        if (currentOrg) {
+            currentOrg.forEach(element => {
+                try {
+                    result += "\n" + execSync('gpasswd -d 2c_' + login + ' ' + '2c_org_' + element).toString('utf8');
+                } catch (err) {
+                    result += err;
+                }
+            });
+        }
+        try {
+            result += "\n" + execSync('usermod -a -G 2c_org_' + org + ' 2c_' + login).toString('utf8');
+        } catch (err) {
+            result += err;
+        }
+
+        return result;
     },
     getGroupList: function () {
         var execSync = require('child_process').execSync;

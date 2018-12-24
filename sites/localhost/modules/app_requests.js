@@ -109,7 +109,16 @@ window.ЗапросыАПИ = {
                 role: Роль
             };
             var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/add_user", Параметры, null));
-            console.log(ОтветСервера);
+            return ОтветСервера;
+        },
+
+        НазначитьОрганизацию: function(Имя, Организация) {
+            var Параметры = {
+                login: Имя,
+                org: Организация
+            };
+            var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/set_user_org", Параметры, null));
+            return ОтветСервера;
         }
     },
     Организации: {

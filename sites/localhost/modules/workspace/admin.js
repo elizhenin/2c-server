@@ -84,11 +84,27 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             ФормыОкон[id_salt_useredit] = Окна.window("useredit" + id_salt_useredit).attachForm();
             ФормыОкон[id_salt_useredit].loadStruct("/views/admin/user_edit_form.json", "json", function () {
-                ФормыОкон[id_salt_useredit].getInput("login").value = СписокПользователей.cellByIndex(id, 0).getValue();
+                ФормыОкон[id_salt_useredit].getInput("login").value = window.СписокПользователей[id].Имя;
                 ФормыОкон[id_salt_useredit].setReadonly("login", true);
-                ФормыОкон[id_salt_useredit].setItemValue("role", Справочники.Роли[СписокПользователей.cellByIndex(id, 1).getValue()]);
+                ФормыОкон[id_salt_useredit].setItemValue("role", window.СписокПользователей[id].Роль);
+                var ВариантыОрганизаций = [];
+                ЗапросыАПИ.Организации.Список().rows.forEach(element => {
+                    Item = {
+                        "value": element.data[0],
+                        "text": element.data[0]
+                    };
+                    ВариантыОрганизаций.push(Item);
+                });
+                if (ФормыОкон[id_salt_useredit].getSelect("role").value == 'sender') {
+                    ФормыОкон[id_salt_useredit].addItem(null, {
+                        "name": "org",
+                        "type": "select",
+                        "label": "Организация",
+                        "options": ВариантыОрганизаций
+                    }, 3, 2);
+                    ФормыОкон[id_salt_useredit].setItemValue("org", window.СписокПользователей[id].Организации[0]);
+                }
             });
-
 
             ФормыОкон[id_salt_useredit].attachEvent("onButtonClick", function (id) {
                 switch (id) {
@@ -98,6 +114,10 @@ document.addEventListener('DOMContentLoaded', function () {
                             var Пароль = ФормыОкон[id_salt_useredit].getInput("password").value;
                             var Роль = ФормыОкон[id_salt_useredit].getSelect("role").value;
                             var Результат = ЗапросыАПИ.Пользователи.Сохранить(Имя, Пароль, Роль);
+                            if (ФормыОкон[id_salt_useredit].getSelect("org") != null) {
+                                var Организация = ФормыОкон[id_salt_useredit].getSelect("org").value;
+                                Результат += ЗапросыАПИ.Пользователи.НазначитьОрганизацию(Имя, Организация);
+                            }
                             Окна.window("useredit" + id_salt_useredit).close();
                             ФормыОкон[id_salt_useredit] = false;
                             СписокПользователей.clearAll();
