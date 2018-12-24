@@ -14,10 +14,9 @@ document.addEventListener('DOMContentLoaded', function () {
             items: {
                 "id": "main_menu",
                 "items": [{
-                        "id": "create",
-                        "text": "Создать"
-                    }
-                ]
+                    "id": "create",
+                    "text": "Создать"
+                }]
             }
         });
 
@@ -25,9 +24,9 @@ document.addEventListener('DOMContentLoaded', function () {
             switch (id) {
                 case "create":
                     {
-                        var id_salt = Math.random() + "";
+                        var id_salt_useradd = Math.random() + "";
                         Окна.createWindow({
-                            id: "useredit" + id_salt,
+                            id: "useredit" + id_salt_useradd,
                             text: "Создать Пользователя",
                             left: 10,
                             top: 10,
@@ -36,28 +35,29 @@ document.addEventListener('DOMContentLoaded', function () {
                             center: true,
                             resize: true
                         });
-                        ФормыОкон[id_salt] = Окна.window("useredit" + id_salt).attachForm();
-                        ФормыОкон[id_salt].loadStruct("/views/admin/user_edit_form.json", "json");
-                        ФормыОкон[id_salt].attachEvent("onButtonClick", function (id) {
+                        ФормыОкон[id_salt_useradd] = Окна.window("useredit" + id_salt_useradd).attachForm();
+                        ФормыОкон[id_salt_useradd].loadStruct("/views/admin/user_edit_form.json", "json");
+                        ФормыОкон[id_salt_useradd].attachEvent("onButtonClick", function (id) {
                             switch (id) {
                                 case "save":
                                     {
-                                        var Имя = ФормыОкон[id_salt].getInput("login").value;
-                                        var Пароль = ФормыОкон[id_salt].getInput("password").value;
-                                        var Роль = ФормыОкон[id_salt].getSelect("role").value;
+                                        var Имя = ФормыОкон[id_salt_useradd].getInput("login").value;
+                                        var Пароль = ФормыОкон[id_salt_useradd].getInput("password").value;
+                                        var Роль = ФормыОкон[id_salt_useradd].getSelect("role").value;
                                         var Результат = ЗапросыАПИ.Пользователи.Сохранить(Имя, Пароль, Роль);
-                                        Окна.window("useredit" + id_salt).close();
+                                        Окна.window("useredit" + id_salt_useradd).close();
+                                        ФормыОкон[id_salt_useradd] = false;
+                                        СписокПользователей.clearAll();
                                         СписокПользователей.parse(ЗапросыАПИ.Пользователи.Список(), "json");
-                                        ФормыОкон[id_salt] = false;
                                         break;
                                     }
                                 default:
                                     {}
                             }
                         });
-break;
+                        break;
                     }
-                   
+
                 default:
                     {}
             }
@@ -70,42 +70,45 @@ break;
         СписокПользователей.init();
         СписокПользователей.parse(ЗапросыАПИ.Пользователи.Список(), "json");
         СписокПользователей.attachEvent("onRowDblClicked", function (id, cell) {
-                var id_salt = Math.random() + "";
-                Окна.createWindow({
-                    id: "useredit" + id_salt,
-                    text: "Править Пользователя",
-                    left: 10,
-                    top: 10,
-                    width: "300",
-                    height: "250",
-                    center: true,
-                    resize: true
-                });
-                ФормыОкон[id_salt] = Окна.window("useredit" + id_salt).attachForm();
-                ФормыОкон[id_salt].loadStruct("/views/admin/user_edit_form.json", "json", function(){
-                    ФормыОкон[id_salt].getInput("login").value = СписокПользователей.cellByIndex(id, 0).getValue();
-                    ФормыОкон[id_salt].setReadonly("login", true);
-                    ФормыОкон[id_salt].setItemValue("role",Справочники.Роли[СписокПользователей.cellByIndex(id, 1).getValue()]);
-                });
-                
-               
-                ФормыОкон[id_salt].attachEvent("onButtonClick", function (id) {
-                    switch (id) {
-                        case "save":
-                            {
-                                var Имя = ФормыОкон[id_salt].getInput("login").value;
-                                var Пароль = ФормыОкон[id_salt].getInput("password").value;
-                                var Роль = ФормыОкон[id_salt].getSelect("role").value;
-                                var Результат = ЗапросыАПИ.Пользователи.Сохранить(Имя, Пароль, Роль);
-                                Окна.window("useredit" + id_salt).close();
-                                ФормыОкон[id_salt] = false;
-                                break;
-                            }
-                        default:
-                            {}
-                    }
-                });
-              
+            var id_salt_useredit = Math.random() + "";
+            id--;
+            Окна.createWindow({
+                id: "useredit" + id_salt_useredit,
+                text: "Править Пользователя",
+                left: 10,
+                top: 10,
+                width: "300",
+                height: "250",
+                center: true,
+                resize: true
+            });
+            ФормыОкон[id_salt_useredit] = Окна.window("useredit" + id_salt_useredit).attachForm();
+            ФормыОкон[id_salt_useredit].loadStruct("/views/admin/user_edit_form.json", "json", function () {
+                ФормыОкон[id_salt_useredit].getInput("login").value = СписокПользователей.cellByIndex(id, 0).getValue();
+                ФормыОкон[id_salt_useredit].setReadonly("login", true);
+                ФормыОкон[id_salt_useredit].setItemValue("role", Справочники.Роли[СписокПользователей.cellByIndex(id, 1).getValue()]);
+            });
+
+
+            ФормыОкон[id_salt_useredit].attachEvent("onButtonClick", function (id) {
+                switch (id) {
+                    case "save":
+                        {
+                            var Имя = ФормыОкон[id_salt_useredit].getInput("login").value;
+                            var Пароль = ФормыОкон[id_salt_useredit].getInput("password").value;
+                            var Роль = ФормыОкон[id_salt_useredit].getSelect("role").value;
+                            var Результат = ЗапросыАПИ.Пользователи.Сохранить(Имя, Пароль, Роль);
+                            Окна.window("useredit" + id_salt_useredit).close();
+                            ФормыОкон[id_salt_useredit] = false;
+                            СписокПользователей.clearAll();
+                            СписокПользователей.parse(ЗапросыАПИ.Пользователи.Список(), "json");
+                            break;
+                        }
+                    default:
+                        {}
+                }
+            });
+
         });
 
         var СписокОрганизаций = InterfaceLayout.cells("b").attachGrid();

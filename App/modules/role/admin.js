@@ -50,7 +50,7 @@ module.exports = function (Environment) {
                 
                 var setUserRole = AuthWrapper.setUserRole(Request.login,Request.role);
 
-                Response = ResponsePrepare(true, {'createUser':createUser, 'setUserRole':setUserRole}, "Список пользователей успешно получен");
+                Response = ResponsePrepare(true, {'createUser':createUser, 'setUserRole':setUserRole}, "Параметры пользователя сохранены");
 
                 res.send(Response);
             });
