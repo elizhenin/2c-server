@@ -1,3 +1,7 @@
 DB/tokens
-!DB/tokens/tokensStorage
+DB/orgnames
+DB/groupnames
+!DB/tokens/.tokensStorage
+!DB/orgnames/.orgnamesStorage
+!DB/groupnames/.groupnamesStorage
 

@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     {
                         var id_salt_useradd = Math.random() + "";
                         Окна.createWindow({
-                            id: "useredit" + id_salt_useradd,
+                            id: id_salt_useradd,
                             text: "Создать Пользователя",
                             left: 10,
                             top: 10,
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             center: true,
                             resize: true
                         });
-                        ФормыОкон[id_salt_useradd] = Окна.window("useredit" + id_salt_useradd).attachForm();
+                        ФормыОкон[id_salt_useradd] = Окна.window(id_salt_useradd).attachForm();
                         ФормыОкон[id_salt_useradd].loadStruct("/views/admin/user_edit_form.json", "json");
                         ФормыОкон[id_salt_useradd].attachEvent("onButtonClick", function (id) {
                             switch (id) {
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                         var Пароль = ФормыОкон[id_salt_useradd].getInput("password").value;
                                         var Роль = ФормыОкон[id_salt_useradd].getSelect("role").value;
                                         var Результат = ЗапросыАПИ.Пользователи.Сохранить(Имя, Пароль, Роль);
-                                        Окна.window("useredit" + id_salt_useradd).close();
+                                        Окна.window(id_salt_useradd).close();
                                         ФормыОкон[id_salt_useradd] = false;
                                         СписокПользователей.clearAll();
                                         СписокПользователей.parse(ЗапросыАПИ.Пользователи.Список(), "json");
@@ -63,6 +63,107 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        var МенюОрганизаций = InterfaceLayout.cells("b").attachMenu({
+            items: {
+                "id": "main_menu",
+                "items": [{
+                    "id": "create",
+                    "text": "Создать"
+                }]
+            }
+        });
+
+        МенюОрганизаций.attachEvent("onClick", function (id) {
+            switch (id) {
+                case "create":
+                    {
+                        var id_salt_orgadd = Math.random() + "";
+                        Окна.createWindow({
+                            id: id_salt_orgadd,
+                            text: "Добавить организацию",
+                            left: 10,
+                            top: 10,
+                            width: "400",
+                            height: "150",
+                            center: true,
+                            resize: true
+                        });
+                        ФормыОкон[id_salt_orgadd] = Окна.window(id_salt_orgadd).attachForm();
+                        ФормыОкон[id_salt_orgadd].loadStruct("/views/admin/org_edit_form.json", "json");
+                        ФормыОкон[id_salt_orgadd].attachEvent("onButtonClick", function (id) {
+                            switch (id) {
+                                case "save":
+                                    {
+                                        var Название = ФормыОкон[id_salt_orgadd].getInput("name").value;
+                                        var Результат = ЗапросыАПИ.Организации.Сохранить(Название, false);
+                                        Окна.window(id_salt_orgadd).close();
+                                        ФормыОкон[id_salt_orgadd] = false;
+                                        СписокОрганизаций.clearAll();
+                                        СписокОрганизаций.parse(ЗапросыАПИ.Организации.Список(), "json");
+                                        break;
+                                    }
+                                default:
+                                    {}
+                            }
+                        });
+                        break;
+                    }
+
+                default:
+                    {}
+            }
+        });
+
+        var МенюГрупп = InterfaceLayout.cells("c").attachMenu({
+            items: {
+                "id": "main_menu",
+                "items": [{
+                    "id": "create",
+                    "text": "Создать"
+                }]
+            }
+        });
+
+        МенюГрупп.attachEvent("onClick", function (id) {
+            switch (id) {
+                case "create":
+                    {
+                        var id_salt_groupadd = Math.random() + "";
+                        Окна.createWindow({
+                            id: id_salt_groupadd,
+                            text: "Добавить группу",
+                            left: 10,
+                            top: 10,
+                            width: "400",
+                            height: "150",
+                            center: true,
+                            resize: true
+                        });
+                        ФормыОкон[id_salt_groupadd] = Окна.window(id_salt_groupadd).attachForm();
+                        ФормыОкон[id_salt_groupadd].loadStruct("/views/admin/group_edit_form.json", "json");
+                        ФормыОкон[id_salt_groupadd].attachEvent("onButtonClick", function (id) {
+                            switch (id) {
+                                case "save":
+                                    {
+                                        var Название = ФормыОкон[id_salt_groupadd].getInput("name").value;
+                                        var Результат = ЗапросыАПИ.Группы.Сохранить(Название, false);
+                                        Окна.window(id_salt_groupadd).close();
+                                        ФормыОкон[id_salt_groupadd] = false;
+                                        СписокОрганизаций.clearAll();
+                                        СписокОрганизаций.parse(ЗапросыАПИ.Группы.Список(), "json");
+                                        break;
+                                    }
+                                default:
+                                    {}
+                            }
+                        });
+                        break;
+                    }
+
+                default:
+                    {}
+            }
+        });
         var СписокПользователей = InterfaceLayout.cells("a").attachGrid();
         СписокПользователей.setHeader("Имя входа,Роль");
         СписокПользователей.setInitWidths("200,*");
@@ -73,16 +174,16 @@ document.addEventListener('DOMContentLoaded', function () {
             var id_salt_useredit = Math.random() + "";
             id--;
             Окна.createWindow({
-                id: "useredit" + id_salt_useredit,
+                id: id_salt_useredit,
                 text: "Править Пользователя",
                 left: 10,
                 top: 10,
-                width: "300",
+                width: "400",
                 height: "250",
                 center: true,
                 resize: true
             });
-            ФормыОкон[id_salt_useredit] = Окна.window("useredit" + id_salt_useredit).attachForm();
+            ФормыОкон[id_salt_useredit] = Окна.window(id_salt_useredit).attachForm();
             ФормыОкон[id_salt_useredit].loadStruct("/views/admin/user_edit_form.json", "json", function () {
                 ФормыОкон[id_salt_useredit].getInput("login").value = window.СписокПользователей[id].Имя;
                 ФормыОкон[id_salt_useredit].setReadonly("login", true);
@@ -90,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 var ВариантыОрганизаций = [];
                 ЗапросыАПИ.Организации.Список().rows.forEach(element => {
                     Item = {
-                        "value": element.data[0],
+                        "value": element.data[1],
                         "text": element.data[0]
                     };
                     ВариантыОрганизаций.push(Item);
@@ -132,8 +233,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         var СписокОрганизаций = InterfaceLayout.cells("b").attachGrid();
-        СписокОрганизаций.setHeader("Организация");
-        СписокОрганизаций.setColTypes("ro");
+        СписокОрганизаций.setHeader("Организация, Код");
+        СписокОрганизаций.setInitWidths("*,100");
+        СписокОрганизаций.setColTypes("ro,ro");
         СписокОрганизаций.init();
         СписокОрганизаций.parse(ЗапросыАПИ.Организации.Список(), "json");
         СписокОрганизаций.attachEvent("onRowDblClicked", function (id, cell) {
@@ -142,8 +244,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         var СписокГрупп = InterfaceLayout.cells("c").attachGrid();
-        СписокГрупп.setHeader("Группа");
-        СписокГрупп.setColTypes("ro");
+        СписокГрупп.setHeader("Группа, Код");
+        СписокГрупп.setInitWidths("*,100");
+        СписокГрупп.setColTypes("ro,ro");
         СписокГрупп.init();
         СписокГрупп.parse(ЗапросыАПИ.Группы.Список(), "json");
         СписокГрупп.attachEvent("onRowDblClicked", function (id, cell) {

@@ -46,34 +46,37 @@ module.exports = function (Environment) {
                     Response = JSON.stringify(Response);
                     return Response;
                 };
-                var createUser = AuthWrapper.createUser(Request.login,Request.password);
-                
-                var setUserRole = AuthWrapper.setUserRole(Request.login,Request.role);
+                var createUser = AuthWrapper.createUser(Request.login, Request.password);
 
-                Response = ResponsePrepare(true, {'createUser':createUser, 'setUserRole':setUserRole}, "Параметры пользователя сохранены");
+                var setUserRole = AuthWrapper.setUserRole(Request.login, Request.role);
+
+                Response = ResponsePrepare(true, {
+                    'createUser': createUser,
+                    'setUserRole': setUserRole
+                }, "Параметры пользователя сохранены");
 
                 res.send(Response);
             });
-            Environment.app
-            .get(Environment.api_url_prefix + api_role_admin_prefix + "/set_user_org",
-                function (req, res) {
-                    Request = req.query;
-                    var Response;
-                    var ResponsePrepare = function (status, items, message) {
-                        Response = {
-                            Статус: status, // true/false
-                            Отладка: items,
-                            Сообщение: message
-                        };
-                        Response = JSON.stringify(Response);
-                        return Response;
+    Environment.app
+        .get(Environment.api_url_prefix + api_role_admin_prefix + "/set_user_org",
+            function (req, res) {
+                Request = req.query;
+                var Response;
+                var ResponsePrepare = function (status, items, message) {
+                    Response = {
+                        Статус: status, // true/false
+                        Отладка: items,
+                        Сообщение: message
                     };
-                    var setUserOrg = AuthWrapper.setUserOrg(Request.login,Request.org);
-    
-                    Response = ResponsePrepare(true, setUserOrg, "Организация пользователя назначена");
-    
-                    res.send(Response);
-                });
+                    Response = JSON.stringify(Response);
+                    return Response;
+                };
+                var setUserOrg = AuthWrapper.setUserOrg(Request.login, Request.org);
+
+                Response = ResponsePrepare(true, setUserOrg, "Организация пользователя назначена");
+
+                res.send(Response);
+            });
     Environment.app
         .get(Environment.api_url_prefix + api_role_admin_prefix + "/get_org_list",
             function (req, res) {
@@ -87,13 +90,35 @@ module.exports = function (Environment) {
                     Response = JSON.stringify(Response);
                     return Response;
                 };
-                var OrgList = AuthWrapper.getOrgList();
+                var OrgList = AuthWrapper.getOrgList(Environment.DBORGNAMESDIR);
+                
                 //TODO populate with info about included users
                 var Response = OrgList;
                 Response = ResponsePrepare(true, Response, "Список организаций успешно получен");
 
                 res.send(Response);
             });
+
+    Environment.app
+        .get(Environment.api_url_prefix + api_role_admin_prefix + "/add_org",
+            function (req, res) {
+                Request = req.query;
+                var Response;
+                var ResponsePrepare = function (status, items, message) {
+                    Response = {
+                        Статус: status, // true/false
+                        Отладка: items,
+                        Сообщение: message
+                    };
+                    Response = JSON.stringify(Response);
+                    return Response;
+                };
+                var createOrg = AuthWrapper.createOrg(Request.name, Request.code, Environment.DBORGNAMESDIR);
+                Response = ResponsePrepare(true, createOrg, "Организация сохранена");
+
+                res.send(Response);
+            });
+
     Environment.app
         .get(Environment.api_url_prefix + api_role_admin_prefix + "/get_group_list",
             function (req, res) {
@@ -107,11 +132,32 @@ module.exports = function (Environment) {
                     Response = JSON.stringify(Response);
                     return Response;
                 };
-                var GroupList = AuthWrapper.getGroupList();
+                var GroupList = AuthWrapper.getGroupList(Environment.DBGROUPNAMESDIR);
                 //TODO populate with info about included users
                 var Response = GroupList;
                 Response = ResponsePrepare(true, Response, "Список групп успешно получен");
 
                 res.send(Response);
             });
+
+    Environment.app
+    .get(Environment.api_url_prefix + api_role_admin_prefix + "/add_group",
+        function (req, res) {
+            Request = req.query;
+            var Response;
+            var ResponsePrepare = function (status, items, message) {
+                Response = {
+                    Статус: status, // true/false
+                    Отладка: items,
+                    Сообщение: message
+                };
+                Response = JSON.stringify(Response);
+                return Response;
+            };
+            var createGroup = AuthWrapper.createGroup(Request.name, Request.code, Environment.DBGROUPNAMESDIR);
+            Response = ResponsePrepare(true, createGroup, "Группа сохранена");
+
+            res.send(Response);
+        });
+
 }

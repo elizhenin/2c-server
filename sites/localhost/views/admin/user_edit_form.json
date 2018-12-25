@@ -1,5 +1,5 @@
 [
-    {"type":"settings","position":"label-left","labelWidth":100,"inputWidth":140,
+    {"type":"settings","position":"label-left","labelWidth":100,"inputWidth":240,
        "labelAlign":"right"},
     {"name":"login","type": "input",     "label": "Имя",      "value": ""},
     {"name":"password","type": "password",  "label": "Пароль",  "value": ""},
@@ -9,6 +9,6 @@
       {"value": "sender", "text": "Сдающий"},
       {"value": "receiver", "text": "Принимающий"}
   ]},
-    {"type":"button",   "name":"save", "value":"Сохранить","position":"relative", "inputLeft":100,"inputTop":15}
+    {"type":"button",   "name":"save", "value":"Сохранить","position":"relative", "inputLeft":150,"inputTop":15}
 
    ]

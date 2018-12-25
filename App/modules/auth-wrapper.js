@@ -53,7 +53,7 @@ module.exports = {
         } catch (err) {
             result += err;
         }
-        
+
         try {
 
             result += "\n" + execSync('usermod -a -G 2c_role_' + role + ' 2c_' + login).toString('utf8');
@@ -120,18 +120,6 @@ module.exports = {
         return Groups;
     },
 
-    getOrgList: function () {
-        var execSync = require('child_process').execSync;
-        result = execSync('getent group | grep "2c_org_"').toString('utf8');
-        result = result.split("\n");
-        var CleanResult = [];
-        result.forEach(element => {
-            element = element.split(':')[0].replace("2c_org_", "");
-            if (element.length > 0) CleanResult.push(element);
-        });
-        return CleanResult;
-    },
-
     setUserOrg: function (login, org) {
         var currentOrg = this.getOrgByUser(login);
         var result = "";
@@ -153,15 +141,98 @@ module.exports = {
 
         return result;
     },
-    getGroupList: function () {
+
+    getOrgList: function (DBORGNAMESDIR) {
+        var fs = require("fs");
         var execSync = require('child_process').execSync;
-        result = execSync('getent group | grep "2c_group_"').toString('utf8');
+        try {
+            result = execSync('getent group | grep "2c_org_"').toString('utf8');
+        } catch (e) {
+            result = "";
+        }
+        result = result.split("\n");
+        var CleanResult = [];
+        result.forEach(element => {
+            element = element.split(':')[0].replace("2c_org_", "");
+            if (element.length > 0) CleanResult.push({
+                code: element,
+                name: fs.readFileSync(DBORGNAMESDIR + "/" + "2c_org_" + element).toString()
+            });
+        });
+        return CleanResult;
+    },
+
+
+    createOrg: function (name, code, DBORGNAMESDIR) {
+        var fs = require('fs');
+        var execSync = require('child_process').execSync;
+        var result = "";
+        if (code == "false") {
+            code = 1;
+            while (fs.existsSync(DBORGNAMESDIR + "/" + "2c_org_" + ("000000000" + code).slice(-9))) {
+                console.log(fs.existsSync(DBORGNAMESDIR + "/" + "2c_org_" + ("000000000" + code).slice(-9)));
+                code++;
+            }
+        }
+
+        var filename = "2c_org_" + ("000000000" + code).slice(-9);
+        result += filename + "\n";
+        fs.writeFile(DBORGNAMESDIR + "/" + filename, name, function (err) {});
+        try {
+            result += execSync('groupadd ' + filename).toString('utf8');
+        } catch (e) {
+            result += e;
+        }
+
+        return result;
+    },
+    getGroupList: function (DBGROUPNAMESDIR) {
+        var fs = require("fs");
+        var execSync = require('child_process').execSync;
+        try {
+            result = execSync('getent group | grep "2c_group_"').toString('utf8');
+        } catch (e) {
+            result = "";
+        }
         result = result.split("\n");
         var CleanResult = [];
         result.forEach(element => {
             element = element.split(':')[0].replace("2c_group_", "");
-            if (element.length > 0) CleanResult.push(element);
+            if (element.length > 0) try {
+                CleanResult.push({
+                    code: element,
+                    name: fs.readFileSync(DBGROUPNAMESDIR + "/" + "2c_group_" + element).toString()
+                });
+            } catch (e) {
+                CleanResult.push({
+                    code: element,
+                    name: element
+                });
+            }
         });
         return CleanResult;
+    },
+    createGroup: function (name, code, DBGROUPNAMESDIR) {
+        var fs = require('fs');
+        var execSync = require('child_process').execSync;
+        var result = "";
+        if (code == "false") {
+            code = 1;
+            while (fs.existsSync(DBGROUPNAMESDIR + "/" + "2c_group_" + ("000000000" + code).slice(-9))) {
+                console.log(fs.existsSync(DBGROUPNAMESDIR + "/" + "2c_group_" + ("000000000" + code).slice(-9)));
+                code++;
+            }
+        }
+
+        var filename = "2c_group_" + ("000000000" + code).slice(-9);
+        result += filename + "\n";
+        fs.writeFile(DBGROUPNAMESDIR + "/" + filename, name, function (err) {});
+        try {
+            result += execSync('groupadd ' + filename).toString('utf8');
+        } catch (e) {
+            result += e;
+        }
+
+        return result;
     },
 }
