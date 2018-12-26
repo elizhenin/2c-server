@@ -3,18 +3,21 @@ module.exports = {
         var PAM = require('authenticate-pam');
         PAM.authenticate("2c_" + login, password, next);
     },
-
+    userPrefix: "2c_",
+    rolePrefix: "2c_role",
+    orgPrefix: "2c_org_",
+    groupPrefix: "2c_group_",
     userRole: function (login) {
-        login = "2c_" + login;
+        login = this.userPrefix + login;
         var execSync = require('child_process').execSync;
         result = execSync('groups ' + login).toString('utf8');
         result = result.split(":")[1].trim().split(" ");
         for (var key in result) {
             if (result.hasOwnProperty(key)) {
-                if (!result[key].startsWith("2c_role_")) {
+                if (!result[key].startsWith(this.rolePrefix)) {
                     delete(result[key]);
                 } else {
-                    result[key] = result[key].replace("2c_role_", "");
+                    result[key] = result[key].replace(this.rolePrefix, "");
                 }
             }
         };
@@ -27,7 +30,7 @@ module.exports = {
     },
 
     createUser: function (login, password) {
-        login = "2c_" + login;
+        login = this.userPrefix + login;
         var execSync = require('child_process').execSync;
         try {
             result = execSync('useradd ' + login).toString('utf8');
@@ -49,14 +52,14 @@ module.exports = {
         var result = "";
         var execSync = require('child_process').execSync;
         try {
-            result += "\n" + execSync('gpasswd -d 2c_' + login + ' ' + '2c_role_' + currentRole).toString('utf8');
+            result += "\n" + execSync('gpasswd -d '+this.userPrefix + login + ' ' + this.rolePrefix + currentRole).toString('utf8');
         } catch (err) {
             result += err;
         }
 
         try {
 
-            result += "\n" + execSync('usermod -a -G 2c_role_' + role + ' 2c_' + login).toString('utf8');
+            result += "\n" + execSync('usermod -a -G '+this.rolePrefix + role + ' '+this.userPrefix + login).toString('utf8');
         } catch (err) {
             result += err;
         }
@@ -66,27 +69,27 @@ module.exports = {
 
     getList: function () {
         var execSync = require('child_process').execSync;
-        result = execSync('getent passwd | grep "2c_"').toString('utf8');
+        result = execSync('getent passwd | grep "'+this.userPrefix+'"').toString('utf8');
         result = result.split("\n");
         var CleanResult = [];
         result.forEach(element => {
-            element = element.split(':')[0].replace("2c_", "");
+            element = element.split(':')[0].replace(this.userPrefix, "");
             if (element.length > 0) CleanResult.push(element);
         });
         return (CleanResult);
     },
 
     getOrgByUser: function (user) {
-        user = "2c_" + user;
+        user = this.userPrefix + user;
         var execSync = require('child_process').execSync;
         result = execSync('groups ' + user).toString('utf8');
         result = result.split(":")[1].trim().split(" ");
         for (var key in result) {
             if (result.hasOwnProperty(key)) {
-                if (!result[key].startsWith("2c_org_")) {
+                if (!result[key].startsWith(this.orgPrefix)) {
                     delete(result[key]);
                 } else {
-                    result[key] = result[key].replace("2c_org_", "");
+                    result[key] = result[key].replace(this.orgPrefix, "");
                 }
             }
         };
@@ -99,16 +102,16 @@ module.exports = {
     },
 
     getGroupsByUser: function (user) {
-        user = "2c_" + user;
+        user = this.userPrefix + user;
         var execSync = require('child_process').execSync;
         result = execSync('groups ' + user).toString('utf8');
         result = result.split(":")[1].trim().split(" ");
         for (var key in result) {
             if (result.hasOwnProperty(key)) {
-                if (!result[key].startsWith("2c_group_")) {
+                if (!result[key].startsWith(this.groupPrefix)) {
                     delete(result[key]);
                 } else {
-                    result[key] = result[key].replace("2c_group_", "");
+                    result[key] = result[key].replace(this.groupPrefix, "");
                 }
             }
         };
@@ -127,14 +130,14 @@ module.exports = {
         if (currentOrg) {
             currentOrg.forEach(element => {
                 try {
-                    result += "\n" + execSync('gpasswd -d 2c_' + login + ' ' + '2c_org_' + element).toString('utf8');
+                    result += "\n" + execSync('gpasswd -d '+this.userPrefix + login + ' ' + this.orgPrefix + element).toString('utf8');
                 } catch (err) {
                     result += err;
                 }
             });
         }
         try {
-            result += "\n" + execSync('usermod -a -G 2c_org_' + org + ' 2c_' + login).toString('utf8');
+            result += "\n" + execSync('usermod -a -G '+this.orgPrefix + org + ' '+this.userPrefix + login).toString('utf8');
         } catch (err) {
             result += err;
         }
@@ -146,17 +149,17 @@ module.exports = {
         var fs = require("fs");
         var execSync = require('child_process').execSync;
         try {
-            result = execSync('getent group | grep "2c_org_"').toString('utf8');
+            result = execSync('getent group | grep "'+this.orgPrefix+'"').toString('utf8');
         } catch (e) {
             result = "";
         }
         result = result.split("\n");
         var CleanResult = [];
         result.forEach(element => {
-            element = element.split(':')[0].replace("2c_org_", "");
+            element = element.split(':')[0].replace(this.orgPrefix, "");
             if (element.length > 0) CleanResult.push({
                 code: element,
-                name: fs.readFileSync(DBORGNAMESDIR + "/" + "2c_org_" + element).toString()
+                name: fs.readFileSync(DBORGNAMESDIR + "/" + this.orgPrefix + element).toString()
             });
         });
         return CleanResult;
@@ -169,13 +172,13 @@ module.exports = {
         var result = "";
         if (code == "false") {
             code = 1;
-            while (fs.existsSync(DBORGNAMESDIR + "/" + "2c_org_" + ("000000000" + code).slice(-9))) {
-                console.log(fs.existsSync(DBORGNAMESDIR + "/" + "2c_org_" + ("000000000" + code).slice(-9)));
+            while (fs.existsSync(DBORGNAMESDIR + "/" + this.orgPrefix + ("000000000" + code).slice(-9))) {
+                console.log(fs.existsSync(DBORGNAMESDIR + "/" + this.orgPrefix + ("000000000" + code).slice(-9)));
                 code++;
             }
         }
 
-        var filename = "2c_org_" + ("000000000" + code).slice(-9);
+        var filename = this.orgPrefix + ("000000000" + code).slice(-9);
         result += filename + "\n";
         fs.writeFile(DBORGNAMESDIR + "/" + filename, name, function (err) {});
         try {
@@ -190,18 +193,18 @@ module.exports = {
         var fs = require("fs");
         var execSync = require('child_process').execSync;
         try {
-            result = execSync('getent group | grep "2c_group_"').toString('utf8');
+            result = execSync('getent group | grep "'+this.groupPrefix+'"').toString('utf8');
         } catch (e) {
             result = "";
         }
         result = result.split("\n");
         var CleanResult = [];
         result.forEach(element => {
-            element = element.split(':')[0].replace("2c_group_", "");
+            element = element.split(':')[0].replace(this.groupPrefix, "");
             if (element.length > 0) try {
                 CleanResult.push({
                     code: element,
-                    name: fs.readFileSync(DBGROUPNAMESDIR + "/" + "2c_group_" + element).toString()
+                    name: fs.readFileSync(DBGROUPNAMESDIR + "/" + this.groupPrefix + element).toString()
                 });
             } catch (e) {
                 CleanResult.push({
@@ -218,13 +221,13 @@ module.exports = {
         var result = "";
         if (code == "false") {
             code = 1;
-            while (fs.existsSync(DBGROUPNAMESDIR + "/" + "2c_group_" + ("000000000" + code).slice(-9))) {
-                console.log(fs.existsSync(DBGROUPNAMESDIR + "/" + "2c_group_" + ("000000000" + code).slice(-9)));
+            while (fs.existsSync(DBGROUPNAMESDIR + "/" + this.groupPrefix + ("000000000" + code).slice(-9))) {
+                console.log(fs.existsSync(DBGROUPNAMESDIR + "/" + this.groupPrefix + ("000000000" + code).slice(-9)));
                 code++;
             }
         }
 
-        var filename = "2c_group_" + ("000000000" + code).slice(-9);
+        var filename = this.groupPrefix + ("000000000" + code).slice(-9);
         result += filename + "\n";
         fs.writeFile(DBGROUPNAMESDIR + "/" + filename, name, function (err) {});
         try {
