@@ -4,7 +4,7 @@ module.exports = {
         PAM.authenticate("2c_" + login, password, next);
     },
     userPrefix: "2c_",
-    rolePrefix: "2c_role",
+    rolePrefix: "2c_role_",
     orgPrefix: "2c_org_",
     groupPrefix: "2c_group_",
     userRole: function (login) {
