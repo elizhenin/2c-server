@@ -167,6 +167,23 @@ window.ЗапросыАПИ = {
             };
             var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/add_group", Параметры, null));
             return ОтветСервера;
-        }
+        },
+        СоставГруппы: function(Код) {
+            var ГотовыйСписок = {rows:[]};
+            var Параметры = {
+                code: Код
+            };
+            var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/get_group_users", Параметры, null));
+         
+            for (var i=0; i< ОтветСервера.Пользователи.length; i++){
+                ГотовыйСписок.rows.push(
+                    {
+                        id:i+1,
+                        data:[ОтветСервера.Пользователи[i].login,ОтветСервера.Пользователи[i].org]
+                    }
+                );
+            }
+           return ГотовыйСписок;
+        },
     }
 }

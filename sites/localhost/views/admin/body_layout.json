@@ -1,5 +1,5 @@
 {
-    "pattern":"3W",
+    "pattern":"4L",
     "offsets": {
         "top": 0,
         "right": 0,
@@ -21,6 +21,12 @@
         {
             "id": "c",
             "text":"Группы организаций",
+            "header": true,
+            "collapse": false
+        },
+        {
+            "id": "d",
+            "text":"Пользователи группы",
             "header": true,
             "collapse": false
         }

@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             resize: true
                         });
                         ФормыОкон[id_salt_useradd] = Окна.window(id_salt_useradd).attachForm();
-                        ФормыОкон[id_salt_useradd].loadStruct("/views/admin/user_edit_form.json", "json", function(){
+                        ФормыОкон[id_salt_useradd].loadStruct("/views/admin/user_edit_form.json", "json", function () {
                             ФормыОкон[id_salt_useradd].attachEvent("onButtonClick", function (id) {
                                 switch (id) {
                                     case "save":
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 }
                             });
                         });
-              
+
                         break;
                     }
 
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             resize: true
                         });
                         ФормыОкон[id_salt_orgadd] = Окна.window(id_salt_orgadd).attachForm();
-                        ФормыОкон[id_salt_orgadd].loadStruct("/views/admin/org_edit_form.json", "json", function(){
+                        ФормыОкон[id_salt_orgadd].loadStruct("/views/admin/org_edit_form.json", "json", function () {
                             ФормыОкон[id_salt_orgadd].attachEvent("onButtonClick", function (id) {
                                 switch (id) {
                                     case "save":
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 }
                             });
                         });
-                    
+
                         break;
                     }
 
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             resize: true
                         });
                         ФормыОкон[id_salt_groupadd] = Окна.window(id_salt_groupadd).attachForm();
-                        ФормыОкон[id_salt_groupadd].loadStruct("/views/admin/group_edit_form.json", "json", function(){
+                        ФормыОкон[id_salt_groupadd].loadStruct("/views/admin/group_edit_form.json", "json", function () {
                             ФормыОкон[id_salt_groupadd].attachEvent("onButtonClick", function (id) {
                                 switch (id) {
                                     case "save":
@@ -153,8 +153,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                             var Результат = ЗапросыАПИ.Группы.Сохранить(Название, false);
                                             Окна.window(id_salt_groupadd).close();
                                             ФормыОкон[id_salt_groupadd] = false;
-                                            СписокОрганизаций.clearAll();
-                                            СписокОрганизаций.parse(ЗапросыАПИ.Группы.Список(), "json");
+                                            СписокГрупп.clearAll();
+                                            СписокГрупп.parse(ЗапросыАПИ.Группы.Список(), "json");
                                             break;
                                         }
                                     default:
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 }
                             });
                         });
-  
+
                         break;
                     }
 
@@ -170,6 +170,40 @@ document.addEventListener('DOMContentLoaded', function () {
                     {}
             }
         });
+
+        var МенюПользователейГруппы = InterfaceLayout.cells("d").attachMenu({
+            items: {
+                "id": "main_menu",
+                "items": [{
+                        "id": "add",
+                        "text": "Добавить",
+                        "disabled":true
+                    },
+                    {
+                        "id": "del",
+                        "text": "Убрать",
+                        "disabled":true
+                    }
+                ]
+            }
+        });
+        МенюПользователейГруппы.attachEvent("onClick", function (id) {
+            switch (id) {
+                case "add":
+                    {
+
+                        break;
+                    }
+                case "del":
+                    {
+
+                        break;
+                    }
+                default:
+                    {}
+            }
+        });
+
         var СписокПользователей = InterfaceLayout.cells("a").attachGrid();
         СписокПользователей.setHeader("Имя входа,Роль");
         СписокПользователей.setInitWidths("200,*");
@@ -208,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         "type": "select",
                         "label": "Организация",
                         "options": ВариантыОрганизаций,
-                        "value":window.СписокПользователей[id].Организации[0]
+                        "value": window.СписокПользователей[id].Организации[0]
                     }, 3, 2);
                 }
                 ФормыОкон[id_salt_useredit].attachEvent("onButtonClick", function (id) {
@@ -256,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 resize: true
             });
             ФормыОкон[id_salt_orgedit] = Окна.window(id_salt_orgedit).attachForm();
-            ФормыОкон[id_salt_orgedit].loadStruct("/views/admin/org_edit_form.json", "json",function(){
+            ФормыОкон[id_salt_orgedit].loadStruct("/views/admin/org_edit_form.json", "json", function () {
                 ФормыОкон[id_salt_orgedit].setItemValue("name", window.СписокОрганизаций[id].name);
                 ФормыОкон[id_salt_orgedit].setReadonly("code", true);
                 ФормыОкон[id_salt_orgedit].addItem(null, {
@@ -264,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     "type": "input",
                     "hidden": true,
                     "value": window.СписокОрганизаций[id].code
-                });   
+                });
                 ФормыОкон[id_salt_orgedit].attachEvent("onButtonClick", function (id) {
                     switch (id) {
                         case "save":
@@ -305,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 resize: true
             });
             ФормыОкон[id_salt_groupedit] = Окна.window(id_salt_groupedit).attachForm();
-            ФормыОкон[id_salt_groupedit].loadStruct("/views/admin/group_edit_form.json", "json",function(){
+            ФормыОкон[id_salt_groupedit].loadStruct("/views/admin/group_edit_form.json", "json", function () {
                 ФормыОкон[id_salt_groupedit].setItemValue("name", window.СписокГрупп[id].name);
                 ФормыОкон[id_salt_groupedit].setReadonly("code", true);
                 ФормыОкон[id_salt_groupedit].addItem(null, {
@@ -313,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     "type": "input",
                     "hidden": true,
                     "value": window.СписокГрупп[id].code
-                });   
+                });
                 ФормыОкон[id_salt_groupedit].attachEvent("onButtonClick", function (id) {
                     switch (id) {
                         case "save":
@@ -333,7 +367,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             });
         });
-
+        СписокГрупп.attachEvent("onRowSelect", function (id, cell) {
+            id--;
+            СписокПользователейГруппы.clearAll();
+            СписокГрупп.parse(ЗапросыАПИ.Группы.СоставГруппы(window.СписокГрупп[id].code), "json");
+            МенюПользователейГруппы.setItemEnabled("add");
+            МенюПользователейГруппы.setItemEnabled("del");
+        });
+        var СписокПользователейГруппы = InterfaceLayout.cells("d").attachGrid();
+        СписокПользователейГруппы.setHeader("Имя,Организация");
+        СписокПользователейГруппы.setInitWidths("200,*");
+        СписокПользователейГруппы.setColTypes("ro,ro");
+        СписокПользователейГруппы.init();
     });
 
 });

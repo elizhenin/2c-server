@@ -159,5 +159,23 @@ module.exports = function (Environment) {
 
             res.send(Response);
         });
-
+        Environment.app
+        .get(Environment.api_url_prefix + api_role_admin_prefix + "/get_group_users",
+            function (req, res) {
+                Request = req.query;
+                var Response;
+                var ResponsePrepare = function (status, items, message) {
+                    Response = {
+                        Статус: status, // true/false
+                        Пользователи: items,
+                        Сообщение: message
+                    };
+                    Response = JSON.stringify(Response);
+                    return Response;
+                };
+                var getGroupUsers = AuthWrapper.getGroupUsers(Request.code);
+                Response = ResponsePrepare(true, getGroupUsers, "Пользователи группы получены");
+    
+                res.send(Response);
+            });
 }

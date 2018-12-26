@@ -238,4 +238,29 @@ module.exports = {
 
         return result;
     },
+    getGroupUsers: function (code) {
+        var execSync = require('child_process').execSync;
+        var result = "";
+        try {
+            result += execSync('getent group '+this.groupPrefix + code).toString('utf8');
+        } catch (e) {
+            result += "";
+        }
+        var CleanResult = [];
+        if(result){
+            result = result.split(':')[3];
+            result = result.split(',');
+            result.forEach(element => {
+                element = element.trim();
+                if(element){
+                    CleanResult.push({
+                        login: element,
+                        org: this.getOrgByUser(element)[0]
+                    });
+                }
+            });
+        }
+       
+        return CleanResult;
+    }
 }
