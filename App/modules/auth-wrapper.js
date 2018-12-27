@@ -132,7 +132,7 @@ module.exports = {
             currentOrg.forEach(element => {
                 try {
                     result += "\n" + execSync('gpasswd -d ' + this.userPrefix + login + ' ' + this.orgPrefix + element).toString('utf8');
-                    result += "\n" + "Назначение организации " + role;
+                    result += "\n" + "Назначение организации " + org;
                 } catch (err) {
                     result += err;
                 }
