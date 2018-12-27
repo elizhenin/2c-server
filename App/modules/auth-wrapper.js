@@ -52,14 +52,14 @@ module.exports = {
         var result = "";
         var execSync = require('child_process').execSync;
         try {
-            result += "\n" + execSync('gpasswd -d ' + this.userPrefix + login + ' ' + this.rolePrefix + currentRole).toString('utf8');
+            execSync('gpasswd -d ' + this.userPrefix + login + ' ' + this.rolePrefix + currentRole).toString('utf8');
         } catch (err) {
             result += err;
         }
 
         try {
 
-            result += "\n" + execSync('usermod -a -G ' + this.rolePrefix + role + ' ' + this.userPrefix + login).toString('utf8');
+            execSync('usermod -a -G ' + this.rolePrefix + role + ' ' + this.userPrefix + login).toString('utf8');
             result += "\n" + "Назначение роли " + role;
         } catch (err) {
             result += err;
@@ -131,8 +131,7 @@ module.exports = {
         if (currentOrg) {
             currentOrg.forEach(element => {
                 try {
-                    result += "\n" + execSync('gpasswd -d ' + this.userPrefix + login + ' ' + this.orgPrefix + element).toString('utf8');
-                    result += "\n" + "Назначение организации " + org;
+                    execSync('gpasswd -d ' + this.userPrefix + login + ' ' + this.orgPrefix + element).toString('utf8');
                 } catch (err) {
                     result += err;
                 }
@@ -140,6 +139,7 @@ module.exports = {
         }
         try {
             result += "\n" + execSync('usermod -a -G ' + this.orgPrefix + org + ' ' + this.userPrefix + login).toString('utf8');
+            result += "\n" + "Назначение организации " + org;
         } catch (err) {
             result += err;
         }
