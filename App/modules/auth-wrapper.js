@@ -97,9 +97,9 @@ module.exports = {
         cleanResult = result.filter(function() {
             return true
         });
-        var Organisations = false;
-        if (cleanResult.length > 0) Organisations = cleanResult;
-        return Organisations;
+        var Organisation = false;
+        if (cleanResult.length > 0) Organisation = cleanResult[0];
+        return Organisation;
     },
 
     getGroupsByUser: function(user) {
@@ -159,10 +159,17 @@ module.exports = {
         var CleanResult = [];
         result.forEach(element => {
             element = element.split(':')[0].replace(this.orgPrefix, "");
-            if (element.length > 0) CleanResult.push({
-                code: element,
-                name: fs.readFileSync(DBORGNAMESDIR + "/" + this.orgPrefix + element).toString()
-            });
+            if (element.length > 0) try {
+                CleanResult.push({
+                    Код: element,
+                    Название: fs.readFileSync(DBORGNAMESDIR + "/" + this.orgPrefix + element).toString()
+                });
+            } catch (e) {
+                CleanResult.push({
+                    Код: element,
+                    Название: element
+                });
+            }
         });
         return CleanResult;
     },
@@ -205,13 +212,13 @@ module.exports = {
             element = element.split(':')[0].replace(this.groupPrefix, "");
             if (element.length > 0) try {
                 CleanResult.push({
-                    code: element,
-                    name: fs.readFileSync(DBGROUPNAMESDIR + "/" + this.groupPrefix + element).toString()
+                    Код: element,
+                    Название: fs.readFileSync(DBGROUPNAMESDIR + "/" + this.groupPrefix + element).toString()
                 });
             } catch (e) {
                 CleanResult.push({
-                    code: element,
-                    name: element
+                    Код: element,
+                    Название: element
                 });
             }
         });
@@ -253,16 +260,40 @@ module.exports = {
             result = result.split(':')[3];
             result = result.split(',');
             result.forEach(element => {
-                element = element.trim();
+                element = element.trim().replace(this.userPrefix, "");;
+
                 if (element) {
                     CleanResult.push({
-                        login: element,
-                        org: this.getOrgByUser(element)[0]
+                        Имя: element,
+                        Организация: this.getOrgByUser(element)
                     });
                 }
             });
         }
 
         return CleanResult;
+    },
+    addGroupUser: function(group, login){
+        var result = "";
+        var execSync = require('child_process').execSync;
+        try {
+            result += "\n" + execSync('usermod -a -G ' + this.groupPrefix + group + ' ' + this.userPrefix + login).toString('utf8');
+            result += "\n" + "Добавление в группу " + group;
+        } catch (err) {
+            result += err;
+        }
+
+        return result;
+    },
+    delGroupUser: function(group, login){
+        var result = "";
+        var execSync = require('child_process').execSync;
+        try {
+            execSync('gpasswd -d ' + this.userPrefix + login + ' ' + this.groupPrefix + group).toString('utf8');
+        } catch (err) {
+            result += err;
+        }
+
+        return result;
     }
 }

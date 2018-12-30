@@ -23,7 +23,7 @@ module.exports = function (Environment) {
                     var item = {
                         Имя: user,
                         Роль: AuthWrapper.userRole(user),
-                        Организации: AuthWrapper.getOrgByUser(user),
+                        Организация: AuthWrapper.getOrgByUser(user),
                         Группы: AuthWrapper.getGroupsByUser(user)
                     };
                     Response.push(item);
@@ -178,4 +178,44 @@ module.exports = function (Environment) {
     
                 res.send(Response);
             });
+            Environment.app
+            .get(Environment.api_url_prefix + api_role_admin_prefix + "/add_group_user",
+                function (req, res) {
+                    Request = req.query;
+                    var Response;
+                    var ResponsePrepare = function (status, items, message) {
+                        Response = {
+                            Статус: status, // true/false
+                            Отладка: items,
+                            Сообщение: message
+                        };
+                        Response = JSON.stringify(Response);
+                        return Response;
+                    };
+                    var setUserOrg = AuthWrapper.addGroupUser(Request.group, Request.login);
+    
+                    Response = ResponsePrepare(true, setUserOrg, "Пользователь добавлен в группу");
+    
+                    res.send(Response);
+                });
+                Environment.app
+            .get(Environment.api_url_prefix + api_role_admin_prefix + "/del_group_user",
+                function (req, res) {
+                    Request = req.query;
+                    var Response;
+                    var ResponsePrepare = function (status, items, message) {
+                        Response = {
+                            Статус: status, // true/false
+                            Отладка: items,
+                            Сообщение: message
+                        };
+                        Response = JSON.stringify(Response);
+                        return Response;
+                    };
+                    var setUserOrg = AuthWrapper.delGroupUser(Request.group, Request.login);
+    
+                    Response = ResponsePrepare(true, setUserOrg, "Пользователь убран из группы");
+    
+                    res.send(Response);
+                });
 }

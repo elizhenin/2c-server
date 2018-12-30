@@ -7,13 +7,13 @@
         "left": 0
     },
     "cells": [{
-            "id": "a",
+            "id": "b",
             "text":"Пользователи",
             "header": true,
             "collapse": false
         },
         {
-            "id": "b",
+            "id": "a",
             "text":"Организации",
             "header": true,
             "collapse": false
