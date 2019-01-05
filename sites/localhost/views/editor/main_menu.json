@@ -1,0 +1,6 @@
+{
+    "id":"main_menu",
+        "items":[
+            {"id":"exit", "text":"Выход"}
+        ]
+    }
