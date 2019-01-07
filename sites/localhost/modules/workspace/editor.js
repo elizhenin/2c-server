@@ -5,7 +5,17 @@ document.addEventListener('DOMContentLoaded', function() {
     ДождатьсяЭлемента(MainLayout, function() {
         window.InterfaceLayout = MainLayout.cells("a").attachLayout(РазбивкаЭкрана);
         InterfaceLayout.cells("a").setWidth(Math.round(document.body.clientWidth / 3));
-        var МенюОтчетов = InterfaceLayout.cells("b").attachMenu({
+        var МенюОтчетов = InterfaceLayout.cells("a").attachMenu({
+            items: {
+                "id":"main_menu",
+                    "items":[
+                        {"id":"create", "text":"Создать"},
+                        {"id":"edit", "text":"Править"},
+                        {"id":"group", "text":"Группа"}
+                    ]
+                }
+        });
+        var МенюТрафаретов = InterfaceLayout.cells("b").attachMenu({
             items: {
                 "id":"main_menu",
                     "items":[

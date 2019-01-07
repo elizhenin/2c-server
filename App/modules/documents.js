@@ -7,6 +7,8 @@ module.exports = function (Environment) {
     var fs = require('fs');
     var RepWrapper = require('./reports-wrapper');
     RepWrapper.DBREPORTSSDIR = Environment.DBREPORTSSDIR;
+    RepWrapper.AuthWrapper = require('./auth-wrapper');
+    RepWrapper.AuthWrapper.DBGROUPNAMESDIR =Environment.DBGROUPNAMESDIR;
     var api_documents_prefix = "/documents";
 
     // Reports functions
@@ -30,8 +32,8 @@ module.exports = function (Environment) {
                     var item = {
                         Название: report,
                         Группа:{
-                            Код:1,
-                            Название:RepRights.group
+                            Код:RepRights.group.code,
+                            Название:RepRights.group.name
                         }
                     };
                     Response.push(item);
