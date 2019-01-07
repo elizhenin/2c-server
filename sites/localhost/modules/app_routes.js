@@ -1,7 +1,9 @@
 var РежимыРаботы = {
     "/": "workspace/home",
     "/admin": "workspace/admin",
+    "/editor": "workspace/editor",
     "/sender": "workspace/sender",
+
     "receiver": "workspace/receiver"
 }
 

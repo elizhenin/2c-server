@@ -5,15 +5,40 @@ module.exports = function (Environment) {
     */
 
     var fs = require('fs');
-    var AuthWrapper = require('./auth-wrapper');
+    var RepWrapper = require('./reports-wrapper');
+    RepWrapper.DBREPORTSSDIR = Environment.DBREPORTSSDIR;
     var api_documents_prefix = "/documents";
 
     // Reports functions
     Environment.app
         .get(Environment.api_url_prefix + api_documents_prefix + "/reports/list",
             function (req, res) {
-                //list all reports. Should return names of directories. 
-                res.send(false);
+                var Response;
+                var ResponsePrepare = function (status, items, message) {
+                    Response = {
+                        Статус: status, // true/false
+                        Отчеты: items,
+                        Сообщение: message
+                    };
+                    Response = JSON.stringify(Response);
+                    return Response;
+                };
+                var ReportsList = RepWrapper.getList();
+                var Response = [];
+                ReportsList.forEach(report => {
+                    var RepRights = RepWrapper.getRights(report);
+                    var item = {
+                        Название: report,
+                        Группа:{
+                            Код:1,
+                            Название:RepRights.group
+                        }
+                    };
+                    Response.push(item);
+                });
+                Response = ResponsePrepare(true, Response, "Список отчетов успешно получен");
+
+                res.send(Response);
             });
     Environment.app
         .get(Environment.api_url_prefix + api_documents_prefix + "/reports/read",

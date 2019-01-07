@@ -1,6 +1,6 @@
 window.ЗапросыАПИ = {
     GET: {
-        Sync: function(Адрес, Параметры = {}) {
+        Sync: function (Адрес, Параметры = {}) {
             var ЗапросСервера = new XMLHttpRequest();
             ЗапросСервера.open('GET', window.location.protocol + '//' + window.location.host + "/api" + Адрес + АдресИзОбъекта(Параметры), false);
             ЗапросСервера.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
@@ -12,14 +12,14 @@ window.ЗапросыАПИ = {
             ЗапросСервера = undefined;
             return (ТелоОтвета);
         },
-        Async: function(Адрес, Параметры = {}, Функция) {
+        Async: function (Адрес, Параметры = {}, Функция) {
             var ЗапросСервера = new XMLHttpRequest();
             ЗапросСервера.open('GET', window.location.protocol + '//' + window.location.host + "/api" + Адрес + АдресИзОбъекта(Параметры), true);
             ЗапросСервера.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             if ("ТокенАвторизации" in Хранилище) {
                 ЗапросСервера.setRequestHeader("Authorization", "Bearer " + Хранилище.getItem("ТокенАвторизации"));
             }
-            ЗапросСервера.onload = function(e) {
+            ЗапросСервера.onload = function (e) {
                 if (ЗапросСервера.readyState === 4) {
                     if (ЗапросСервера.status === 200) {
                         ТелоОтвета = ЗапросСервера.responseText;
@@ -34,7 +34,7 @@ window.ЗапросыАПИ = {
 
     },
     POST: {
-        Sync: function(Адрес, Параметры = {}, Тело = "") {
+        Sync: function (Адрес, Параметры = {}, Тело = "") {
             var ЗапросСервера = new XMLHttpRequest();
             ЗапросСервера.open('POST', window.location.protocol + '//' + window.location.host + "/api" + Адрес + АдресИзОбъекта(Параметры), false);
             ЗапросСервера.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
@@ -46,14 +46,14 @@ window.ЗапросыАПИ = {
             ЗапросСервера = undefined;
             return (ТелоОтвета);
         },
-        Async: function(Адрес, Параметры = {}, Тело = "", Функция) {
+        Async: function (Адрес, Параметры = {}, Тело = "", Функция) {
             var ЗапросСервера = new XMLHttpRequest();
             ЗапросСервера.open('POST', window.location.protocol + '//' + window.location.host + "/api" + Адрес + АдресИзОбъекта(Параметры), true);
             ЗапросСервера.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             if ("ТокенАвторизации" in Хранилище) {
                 ЗапросСервера.setRequestHeader("Authorization", "Bearer " + Хранилище.getItem("ТокенАвторизации"));
             }
-            ЗапросСервера.onload = function(e) {
+            ЗапросСервера.onload = function (e) {
                 if (ЗапросСервера.readyState === 4) {
                     if (ЗапросСервера.status === 200) {
                         ТелоОтвета = ЗапросСервера.responseText;
@@ -68,7 +68,7 @@ window.ЗапросыАПИ = {
 
     },
     Пользователи: {
-        Вход: function(Имя, Пароль) {
+        Вход: function (Имя, Пароль) {
             ТелоЗапроса = {
                 login: Имя,
                 password: btoa(encodeURIComponent(Пароль))
@@ -78,31 +78,31 @@ window.ЗапросыАПИ = {
             if (Результат.Статус) {
                 Хранилище.setItem("ТокенАвторизации", Результат.ТокенДанные.Token);
                 Хранилище.setItem("РольПользователя", Результат.ТокенДанные.role);
-    
+
             } else {
                 Хранилище.setItem("ТокенАвторизации", "");
                 Хранилище.removeItem("ТокенАвторизации");
             }
             return Результат;
         },
-        Выход: function() {
+        Выход: function () {
             return JSON.parse(ЗапросыАПИ.GET.Sync("/users/logout", {}, null));
         },
-        Список: function() {
-            var ГотовыйСписок = {rows:[]};
+        Список: function () {
+            var ГотовыйСписок = {
+                rows: []
+            };
             var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/get_users_list", {}, null));
             window.СписокПользователей = ОтветСервера.Пользователи;
-            for (var i=0; i< ОтветСервера.Пользователи.length; i++){
-                ГотовыйСписок.rows.push(
-                    {
-                        id:i+1,
-                        data:[ОтветСервера.Пользователи[i].Имя,Справочники.Роли[ОтветСервера.Пользователи[i].Роль]]
-                    }
-                );
+            for (var i = 0; i < ОтветСервера.Пользователи.length; i++) {
+                ГотовыйСписок.rows.push({
+                    id: i + 1,
+                    data: [ОтветСервера.Пользователи[i].Имя, Справочники.Роли[ОтветСервера.Пользователи[i].Роль]]
+                });
             }
-           return ГотовыйСписок;
+            return ГотовыйСписок;
         },
-        Сохранить: function(Имя, Пароль, Роль) {
+        Сохранить: function (Имя, Пароль, Роль) {
             var Параметры = {
                 login: Имя,
                 password: Пароль,
@@ -112,7 +112,7 @@ window.ЗапросыАПИ = {
             return ОтветСервера;
         },
 
-        НазначитьОрганизацию: function(Имя, Организация) {
+        НазначитьОрганизацию: function (Имя, Организация) {
             var Параметры = {
                 login: Имя,
                 org: Организация
@@ -122,21 +122,21 @@ window.ЗапросыАПИ = {
         }
     },
     Организации: {
-        Список: function(){
-            var ГотовыйСписок = {rows:[]};
+        Список: function () {
+            var ГотовыйСписок = {
+                rows: []
+            };
             var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/get_org_list", {}, null));
             window.СписокОрганизаций = ОтветСервера.Организации;
-            for (var i=0; i< ОтветСервера.Организации.length; i++){
-                ГотовыйСписок.rows.push(
-                    {
-                        id:i+1,
-                        data:[ОтветСервера.Организации[i].Название,ОтветСервера.Организации[i].Код]
-                    }
-                );
+            for (var i = 0; i < ОтветСервера.Организации.length; i++) {
+                ГотовыйСписок.rows.push({
+                    id: i + 1,
+                    data: [ОтветСервера.Организации[i].Название, ОтветСервера.Организации[i].Код]
+                });
             }
-           return ГотовыйСписок;
+            return ГотовыйСписок;
         },
-        Сохранить: function(Название, Код) {
+        Сохранить: function (Название, Код) {
             var Параметры = {
                 name: Название,
                 code: Код
@@ -146,21 +146,21 @@ window.ЗапросыАПИ = {
         }
     },
     Группы: {
-        Список: function(){
-            var ГотовыйСписок = {rows:[]};
+        Список: function () {
+            var ГотовыйСписок = {
+                rows: []
+            };
             var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/get_group_list", {}, null));
             window.СписокГрупп = ОтветСервера.Группы;
-            for (var i=0; i< ОтветСервера.Группы.length; i++){
-                ГотовыйСписок.rows.push(
-                    {
-                        id:i+1,
-                        data:[ОтветСервера.Группы[i].Название,ОтветСервера.Группы[i].Код]
-                    }
-                );
+            for (var i = 0; i < ОтветСервера.Группы.length; i++) {
+                ГотовыйСписок.rows.push({
+                    id: i + 1,
+                    data: [ОтветСервера.Группы[i].Название, ОтветСервера.Группы[i].Код]
+                });
             }
-           return ГотовыйСписок;
+            return ГотовыйСписок;
         },
-        Сохранить: function(Название, Код) {
+        Сохранить: function (Название, Код) {
             var Параметры = {
                 name: Название,
                 code: Код
@@ -168,24 +168,24 @@ window.ЗапросыАПИ = {
             var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/add_group", Параметры, null));
             return ОтветСервера;
         },
-        СоставГруппы: function(Код) {
-            var ГотовыйСписок = {rows:[]};
+        СоставГруппы: function (Код) {
+            var ГотовыйСписок = {
+                rows: []
+            };
             var Параметры = {
                 code: Код
             };
             var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/get_group_users", Параметры, null));
             window.СписокПользователейГруппы = ОтветСервера.Пользователи;
-            for (var i=0; i< ОтветСервера.Пользователи.length; i++){
-                ГотовыйСписок.rows.push(
-                    {
-                        id:i+1,
-                        data:[ОтветСервера.Пользователи[i].Имя,ОтветСервера.Пользователи[i].Организация]
-                    }
-                );
+            for (var i = 0; i < ОтветСервера.Пользователи.length; i++) {
+                ГотовыйСписок.rows.push({
+                    id: i + 1,
+                    data: [ОтветСервера.Пользователи[i].Имя, ОтветСервера.Пользователи[i].Организация]
+                });
             }
-           return ГотовыйСписок;
+            return ГотовыйСписок;
         },
-        ДобавитьПользователя: function(Код, Имя) {
+        ДобавитьПользователя: function (Код, Имя) {
             var Параметры = {
                 login: Имя,
                 group: Код
@@ -193,7 +193,7 @@ window.ЗапросыАПИ = {
             var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/add_group_user", Параметры, null));
             return ОтветСервера;
         },
-        УбратьПользователя: function(Код, Имя) {
+        УбратьПользователя: function (Код, Имя) {
             var Параметры = {
                 login: Имя,
                 group: Код
@@ -201,5 +201,38 @@ window.ЗапросыАПИ = {
             var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/role/admin/del_group_user", Параметры, null));
             return ОтветСервера;
         }
+    },
+    Отчеты: {
+        СписокДеревоГруппы: function () {
+            //должен запросить сервер и получить перечень каталогов отчетов, с указанием группы.
+            //полученный список переверстать в структуру для виджета дерева в формате Гркппа->Отчет
+            var ГотовыйСписок = [];
+            var Список = [];
+            var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/documents/reports/list", {}, null));
+            window.СписокОтчетов = ОтветСервера.Отчеты;
+            for (var i = 0; i < ОтветСервера.Отчеты.length; i++) {
+                Список[ОтветСервера.Отчеты[i].Группа.Код] = {
+                    id: ОтветСервера.Отчеты[i].Группа.Код,
+                    text: ОтветСервера.Отчеты[i].Группа.Название,
+                    open: 0,
+                    items: []
+                };
+            };
+            for (var i = 0; i < ОтветСервера.Отчеты.length; i++) {
+                Список[ОтветСервера.Отчеты[i].Группа.Код].items.push({
+                    id: i,
+                    text: ОтветСервера.Отчеты[i].Название
+                });
+
+            };
+
+            if(Список.length){
+                Список.forEach(Отчет => {
+                    ГотовыйСписок.push(Отчет);
+                });
+            }
+
+            return ГотовыйСписок;
+        },
     }
 }

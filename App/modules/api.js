@@ -13,10 +13,8 @@ module.exports = function (Environment) {
     RoleReceiver(Environment);
     var RoleSender = require('./role/sender');
     RoleSender(Environment);
-    //docserver backend
+    //documents backend
     var Documents = require('./documents');
     Documents(Environment);
-    //macros access backend
-    var Parser = require('./parser');
-    Parser(Environment);
+ 
 }
