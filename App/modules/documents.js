@@ -6,9 +6,10 @@ module.exports = function (Environment) {
 
     var fs = require('fs');
     var RepWrapper = require('./reports-wrapper');
+    RepWrapper.DBDIR = Environment.DBDIR;
     RepWrapper.DBREPORTSSDIR = Environment.DBREPORTSSDIR;
     RepWrapper.AuthWrapper = require('./auth-wrapper');
-    RepWrapper.AuthWrapper.DBGROUPNAMESDIR =Environment.DBGROUPNAMESDIR;
+    RepWrapper.AuthWrapper.DBGROUPNAMESDIR = Environment.DBGROUPNAMESDIR;
     var api_documents_prefix = "/documents";
 
     // Reports functions
@@ -51,8 +52,38 @@ module.exports = function (Environment) {
     Environment.app
         .get(Environment.api_url_prefix + api_documents_prefix + "/reports/add",
             function (req, res) {
-                //add new report directory and it's required subdirectory structures, set user and group.
-                res.send(false);
+                var Request = req.query;
+                var Response;
+                var ResponsePrepare = function (status, items, message) {
+                    Response = {
+                        Статус: status, // true/false
+                        Сервер: items,
+                        Сообщение: message
+                    };
+                    var cache = [];
+                    Response = JSON.stringify(Response, function(key, value) {
+                        if (typeof value === 'object' && value !== null) {
+                            if (cache.indexOf(value) !== -1) {
+                                // Duplicate reference found
+                                try {
+                                    // If this value does not reference a parent it can be deduped
+                                    return JSON.parse(JSON.stringify(value));
+                                } catch (error) {
+                                    // discard key if value cannot be deduped
+                                    return;
+                                }
+                            }
+                            // Store value in our collection
+                            cache.push(value);
+                        }
+                        return value;
+                    });
+                    cache = null; // Enable garbage collection
+                    return Response;
+                };
+                var Response = RepWrapper.newReport(Request.name);
+                Response = ResponsePrepare(true, Response, "Новый отчет успешно создан");
+                res.send(Response);
             });
     Environment.app
         .get(Environment.api_url_prefix + api_documents_prefix + "/reports/update",

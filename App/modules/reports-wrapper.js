@@ -10,6 +10,7 @@ module.exports = {
         var result = "";
         var execSync = require('child_process').execSync;
         try {
+            report = report.replace(/(\s+)/g, '\\$1');
             result = execSync('ls -ld ' + this.DBREPORTSSDIR + '/' + report).toString('utf8').trim().split(" ");
             if(result[2].startsWith(this.AuthWrapper.userPrefix)){
                 result[2] = result[2].replace(this.AuthWrapper.userPrefix, "");
@@ -42,4 +43,16 @@ module.exports = {
 
         return result;
     },
+    newReport: function(name){
+        var fs = require("fs");
+        var unzip = require("unzip");
+        var result ="";
+        try{
+            result = fs.createReadStream(this.DBDIR+"/"+"report_structure.zip").pipe(unzip.Extract({ path: this.DBREPORTSSDIR+"/"+name}));  
+        }
+        catch(e){
+            result = e;
+        }
+        return  result;
+    }
 }
