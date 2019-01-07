@@ -54,5 +54,16 @@ module.exports = {
             result = e;
         }
         return  result;
+    },
+    renameReport: function(oldname, newname){
+        var fs = require("fs");
+        var result ="";
+        try{
+            result = fs.renameSync(this.DBREPORTSSDIR+"/"+oldname, this.DBREPORTSSDIR+"/"+newname);
+        }
+        catch(e){
+            result = e;
+        }
+        return  result;
     }
 }

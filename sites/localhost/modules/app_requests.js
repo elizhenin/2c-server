@@ -235,11 +235,19 @@ window.ЗапросыАПИ = {
 
             return ГотовыйСписок;
         },
-        Сохранить: function (Название) {
+        Создать: function (Название) {
             var Параметры = {
                 name: Название
             };
             var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/documents/reports/add", Параметры, null));
+            return ОтветСервера;
+        },
+        Сохранить: function (НовоеНазвание,ТекущееНазвание) {
+            var Параметры = {
+                new: НовоеНазвание,
+                current: ТекущееНазвание
+            };
+            var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/documents/reports/update", Параметры, null));
             return ОтветСервера;
         }
     },
