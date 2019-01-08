@@ -3,6 +3,27 @@ module.exports = function (Environment) {
     All functions from this block must check rights of user and visibility of files/directories,
     depending on user's role and assigned groups.
     */
+
+   String.prototype.hashCode = function () {
+	const len = this.length;
+	let ret = 0;
+    for (let i = 0; i < len; i++) {
+        ret = (31 * ret + this.charCodeAt(i)) << 0;
+    }
+    return ret;
+};
+String.prototype.format = function () {
+    let text = this.toString();
+
+    if (!arguments.length) return text;
+
+    for (let i = 0; i < arguments.length; i++) {
+        text = text.replace(new RegExp("\\{" + i + "\\}", "gi"), arguments[i]);
+    }
+
+    return text;
+};
+
    const api_docserver_prefix = "";
    const configServer = {
    "siteUrl": "http://ehomestation:8081/",
@@ -32,9 +53,14 @@ module.exports = function (Environment) {
   const plugins = {
     "pluginsData": []
   };
-
+  
   Environment.app.set("views", Environment.APPDIR + "/views");
   Environment.app.set("view engine", "ejs");
+
+  var proxy = require("http-proxy-middleware");
+  Environment.app.use('/web-apps', proxy('/web-apps', { ws: true, target: configServer.siteUrl}))
+  Environment.app.use('/sdkjs', proxy('/sdkjs', { ws: true, target: configServer.siteUrl}));
+ Environment.app.use('/doc', proxy('/doc', { ws: true, target: configServer.siteUrl}));
 
 Environment.app.get(api_docserver_prefix + "/editor", function (req, res) {
     const fileSystem = require("fs");

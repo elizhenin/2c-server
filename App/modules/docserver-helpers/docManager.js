@@ -61,7 +61,7 @@ docManager.init = function (dir, req, res) {
     docManager.req = req;
     docManager.res = res;
 
-    this.createDirectory(path.join(docManager.dir, "public", storageFolder));
+    this.createDirectory(docManager.dir);
 };
 
 docManager.getLang = function () {
@@ -113,7 +113,7 @@ docManager.getCorrectName = function (fileName, userAddress) {
 docManager.createDemo = function (demoName, userid, username) {
     const fileName = docManager.getCorrectName(demoName);
 
-    docManager.copyFile(path.join(docManager.dir, "public", "samples", demoName), docManager.storagePath(fileName));
+    docManager.copyFile(path.join(docManager.dir,  "samples", demoName), docManager.storagePath(fileName));
 
     docManager.saveFileData(fileName, userid, username);
 
@@ -172,13 +172,13 @@ docManager.getCallback = function (fileName) {
 
 docManager.storagePath = function (fileName, userAddress) {
     fileName = fileUtility.getFileName(fileName);
-    const directory = path.join(docManager.dir, "public", storageFolder, docManager.curUserHostAddress(userAddress));
+    const directory = docManager.dir;
     this.createDirectory(directory);
     return path.join(directory, fileName);
 };
 
 docManager.forcesavePath = function (fileName, userAddress, create) {
-    let directory = path.join(docManager.dir, "public", storageFolder, docManager.curUserHostAddress(userAddress));
+    let directory = docManager.dir;
     if (!this.existsSync(directory)) {
         return "";
     }
@@ -195,7 +195,7 @@ docManager.forcesavePath = function (fileName, userAddress, create) {
 };
 
 docManager.historyPath = function (fileName, userAddress, create) {
-    let directory = path.join(docManager.dir, "public", storageFolder, docManager.curUserHostAddress(userAddress));
+    let directory = docManager.dir;
     if (!this.existsSync(directory)) {
         return "";
     }
@@ -232,7 +232,7 @@ docManager.changesUser = function (fileName, userAddress, version) {
 };
 
 docManager.getStoredFiles = function () {
-    const directory = path.join(docManager.dir, "public", storageFolder, docManager.curUserHostAddress());
+    const directory = path.join(docManager.dir,  storageFolder, docManager.curUserHostAddress());
     this.createDirectory(directory);
     const result = [];
     const storedFiles = fileSystem.readdirSync(directory);
