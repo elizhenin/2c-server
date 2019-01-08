@@ -3,8 +3,13 @@ module.exports = {
     AuthWrapper : false, //to be initialised from outhere
     getList: function(){
         var fs = require("fs");
-        return fs.readdirSync(this.DBREPORTSSDIR);
-
+        var result = [];
+        fs.readdirSync(this.DBREPORTSSDIR, {withFileTypes: true}).forEach(item => {
+            if (item.isDirectory()){
+                result.push(item.name);
+            }
+        });
+        return result;
     },
     getRights: function(report){
         var result = "";
@@ -18,14 +23,14 @@ module.exports = {
                 result[2] = "";
             }
             if(result[3].startsWith(this.AuthWrapper.groupPrefix)){
-                result[3] = result[2].replace(this.AuthWrapper.groupPrefix, "");
+                result[3] = result[3].replace(this.AuthWrapper.groupPrefix, "");
             }else{
                 result[3] = 0;
             }
             resultObj = {
                 rights: result[0],
                 user: result[2],
-                group:{code: result[3]+0,
+                group:{code: result[3],
                     name: ""
                 }
             }
@@ -60,6 +65,20 @@ module.exports = {
         var result ="";
         try{
             result = fs.renameSync(this.DBREPORTSSDIR+"/"+oldname, this.DBREPORTSSDIR+"/"+newname);
+        }
+        catch(e){
+            result = e;
+        }
+        return  result;
+    },
+    setRightsReport: function(report, user, group){
+        var execSync = require('child_process').execSync;
+        var result ="";
+        report = report.replace(/(\s+)/g, '\\$1');
+        user = this.AuthWrapper.userPrefix+user;
+        group = this.AuthWrapper.groupPrefix+group;
+        try{
+            result = execSync('chown -R ' + user + ':' + group + " "+this.DBREPORTSSDIR+"/"+report).toString('utf8');
         }
         catch(e){
             result = e;

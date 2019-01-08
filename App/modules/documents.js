@@ -32,9 +32,10 @@ module.exports = function (Environment) {
                     var RepRights = RepWrapper.getRights(report);
                     var item = {
                         Название: report,
-                        Группа:{
-                            Код:RepRights.group.code,
-                            Название:RepRights.group.name
+                        Пользователь: RepRights.user,
+                        Группа: {
+                            Код: RepRights.group.code,
+                            Название: RepRights.group.name
                         }
                     };
                     Response.push(item);
@@ -61,7 +62,7 @@ module.exports = function (Environment) {
                         Сообщение: message
                     };
                     var cache = [];
-                    Response = JSON.stringify(Response, function(key, value) {
+                    Response = JSON.stringify(Response, function (key, value) {
                         if (typeof value === 'object' && value !== null) {
                             if (cache.indexOf(value) !== -1) {
                                 // Duplicate reference found
@@ -97,7 +98,7 @@ module.exports = function (Environment) {
                         Сообщение: message
                     };
                     var cache = [];
-                    Response = JSON.stringify(Response, function(key, value) {
+                    Response = JSON.stringify(Response, function (key, value) {
                         if (typeof value === 'object' && value !== null) {
                             if (cache.indexOf(value) !== -1) {
                                 // Duplicate reference found
@@ -117,8 +118,21 @@ module.exports = function (Environment) {
                     cache = null; // Enable garbage collection
                     return Response;
                 };
-                var Response = RepWrapper.renameReport(Request.current,Request.new);
-                Response = ResponsePrepare(true, Response, "Отчет успешно переименован");
+                var Response;
+                switch(Request.operation){
+                    case "rename":{
+                        Response = RepWrapper.renameReport(Request.current, Request.new);
+                        Response = ResponsePrepare(true, Response, "Отчет успешно переименован");
+                        break;
+                    }
+                    case "rights":{
+                        Response = RepWrapper.setRightsReport(Request.name, Request.user, Request.group);
+                        Response = ResponsePrepare(true, Response, "Права отчета успешно назначены");
+                        
+                        break;
+                    }
+                }
+               
                 res.send(Response);
             });
     Environment.app
