@@ -16,5 +16,8 @@ module.exports = function (Environment) {
     //documents backend
     var Documents = require('./documents');
     Documents(Environment);
+    //OnlyOffice DocumentServer backend
+    var Docserver = require('./docserver');
+    Docserver(Environment);
  
 }

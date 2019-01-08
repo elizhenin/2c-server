@@ -5,6 +5,9 @@
     "author": "Evgeny Lizhenin",
     "dependencies": {
         "authenticate-pam": "^1.0.2",
-        "express": "^4.16.3"
+        "ejs": "^2.6.1",
+        "express": "^4.16.3",
+        "jsonwebtoken": "^8.4.0",
+        "urllib": "^2.32.0"
     }
 }
