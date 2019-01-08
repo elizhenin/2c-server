@@ -1,0 +1,1 @@
+This directory must be removed in production. It contains some missing files for fixing issues with OnlyOffice DocumentServer manual installation (when not in Docker). 2C itself doesn't depend on this directory.
