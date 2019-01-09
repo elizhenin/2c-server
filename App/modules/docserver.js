@@ -1,4 +1,9 @@
 module.exports = function (Environment) {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+    Environment.app.use(function (req, res, next) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        next();
+    });
     /*
     All functions from this block must check rights of user and visibility of files/directories,
     depending on user's role and assigned groups.
@@ -39,16 +44,7 @@ String.prototype.format = function () {
     "storageFolder": "files",
     "maxFileSize": 1073741824,
     "mobileRegEx": "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino",
-    "token": {
-        "enable": false,
-        "useforrequest": true,
-        "algorithmRequest": "HS256",
-        "authorizationHeader": "Authorization",
-        "authorizationHeaderPrefix": "Bearer ",
-        "secret": "hgieFESwivtw3489cmff",
-        "expiresIn": "5m"
-    }
-  }
+   }
 
   const plugins = {
     "pluginsData": []
@@ -57,22 +53,13 @@ String.prototype.format = function () {
   Environment.app.set("views", Environment.APPDIR + "/views");
   Environment.app.set("view engine", "ejs");
 
-  var proxy = require("http-proxy-middleware");
-  Environment.app.use('/web-apps', proxy('/web-apps', { ws: true, target: configServer.siteUrl}))
-  Environment.app.use('/sdkjs', proxy('/sdkjs', { ws: true, target: configServer.siteUrl}));
- Environment.app.use('/doc', proxy('/doc', { ws: true, target: configServer.siteUrl}));
+ const fileSystem = require("fs");
+ const docManager = require("./docserver-helpers/docManager");
+ const fileUtility = require("./docserver-helpers/fileUtility");
+ const fileChoiceUrl = "";
 
 Environment.app.get(api_docserver_prefix + "/editor", function (req, res) {
-    const fileSystem = require("fs");
-    const jwt = require('jsonwebtoken');
-    const docManager = require("./docserver-helpers/docManager");
-    const fileUtility = require("./docserver-helpers/fileUtility");
-    const siteUrl = api_docserver_prefix;
-    const fileChoiceUrl = "";
-    const cfgSignatureEnable = configServer.token.enable;
-    const cfgSignatureSecretExpiresIn = configServer.token.expiresIn;
-    const cfgSignatureSecret = configServer.token.secret;
-
+ 
     try {
          docManager.init(Environment.DSTEMPDIR, req, res);
         var history = [];
@@ -141,14 +128,10 @@ Environment.app.get(api_docserver_prefix + "/editor", function (req, res) {
             });
         }
 
-        if (cfgSignatureEnable) {
-            for (var i = 0; i < historyData.length; i++) {
-                historyData[i].token = jwt.sign(historyData[i], cfgSignatureSecret, {expiresIn: cfgSignatureSecretExpiresIn});
-            }
-        }
+       
 
         var argss = {
-            apiUrl: siteUrl + configServer.apiUrl,
+            apiUrl: configServer.siteUrl + configServer.apiUrl,
             file: {
                 name: fileName,
                 ext: fileUtility.getFileExtension(fileName, true),
@@ -180,24 +163,193 @@ Environment.app.get(api_docserver_prefix + "/editor", function (req, res) {
             historyData: historyData
         };
 
-        if (cfgSignatureEnable) {
-            app.render('config', argss, function(err, html){
-                if (err) {
-                    console.log(err);
-                } else {
-                    argss.editor.token = jwt.sign(JSON.parse("{"+html+"}"), cfgSignatureSecret, {expiresIn: cfgSignatureSecretExpiresIn});
-                }
-                res.render("editor", argss);
-              });
-        } else {
-              res.render("editor", argss);
-        }
+        res.render("editor", argss);
+        
     }
     catch (ex) {
         console.log(ex);
         res.status(500);
         res.render("error", { message: "Server error" });
     }
+});
+
+Environment.app.post(api_docserver_prefix + "/track", function (req, res) {
+
+    docManager.init(Environment.DSTEMPDIR, req, res);
+
+    var userAddress = req.query.useraddress;
+    var fileName = fileUtility.getFileName(req.query.filename);
+    var version = 0;
+
+    var processTrack = function (response, body, fileName, userAddress) {
+
+        var processSave = function (downloadUri, body, fileName, userAddress, resp) {
+            var curExt = fileUtility.getFileExtension(fileName);
+            var downloadExt = fileUtility.getFileExtension(downloadUri);
+
+            if (downloadExt != curExt) {
+                var key = documentService.generateRevisionId(downloadUri);
+
+                try {
+                    documentService.getConvertedUriSync(downloadUri, downloadExt, curExt, key, function (dUri) {
+                        processSave(dUri, body, fileName, userAddress, resp)
+                    });
+                    return;
+                } catch (ex) {
+                    console.log(ex);
+                    fileName = docManager.getCorrectName(fileUtility.getFileName(fileName, true) + downloadExt, userAddress)
+                }
+            }
+
+            try {
+
+                var path = docManager.storagePath(fileName, userAddress);
+
+                if (docManager.existsSync(path)) {
+                    var historyPath = docManager.historyPath(fileName, userAddress);
+                    if (historyPath == "") {
+                        historyPath = docManager.historyPath(fileName, userAddress, true);
+                        docManager.createDirectory(historyPath);
+                    }
+
+                    var count_version = docManager.countVersion(historyPath);
+                    version = count_version + 1;
+                    versionPath = docManager.versionPath(fileName, userAddress, version);
+                    docManager.createDirectory(versionPath);
+
+                    var downloadZip = body.changesurl;
+                    if (downloadZip) {
+                        var path_changes = docManager.diffPath(fileName, userAddress, version);
+                        var diffZip = syncRequest("GET", downloadZip);
+                        fileSystem.writeFileSync(path_changes, diffZip.getBody());
+                    }
+
+                    var changeshistory = body.changeshistory || JSON.stringify(body.history);
+                    if (changeshistory) {
+                        var path_changes_json = docManager.changesPath(fileName, userAddress, version);
+                        fileSystem.writeFileSync(path_changes_json, changeshistory);
+                    }
+
+                    var path_key = docManager.keyPath(fileName, userAddress, version);
+                    fileSystem.writeFileSync(path_key, body.key);
+
+                    var path_prev = docManager.prevFilePath(fileName, userAddress, version);
+                    fileSystem.writeFileSync(path_prev, fileSystem.readFileSync(path));
+
+                    var file = syncRequest("GET", downloadUri);
+                    fileSystem.writeFileSync(path, file.getBody());
+
+                    var forcesavePath = docManager.forcesavePath(fileName, userAddress, false);
+                    if (forcesavePath != "") {
+                        fileSystem.unlinkSync(forcesavePath);
+                    }
+                }
+            } catch (ex) {
+                console.log(ex);
+            }
+
+            response.write("{\"error\":0}");
+            response.end();
+        };
+
+        var processForceSave = function (downloadUri, body, fileName, userAddress, resp) {
+            var curExt = fileUtility.getFileExtension(fileName);
+            var downloadExt = fileUtility.getFileExtension(downloadUri);
+
+            if (downloadExt != curExt) {
+                var key = documentService.generateRevisionId(downloadUri);
+
+                try {
+                    documentService.getConvertedUriSync(downloadUri, downloadExt, curExt, key, function (dUri) {
+                        processForceSave(dUri, body, fileName, userAddress, resp)
+                    });
+                    return;
+                } catch (ex) {
+                    console.log(ex);
+                    fileName = docManager.getCorrectName(fileUtility.getFileName(fileName, true) + downloadExt, userAddress)
+                }
+            }
+
+            try {
+
+                var path = docManager.storagePath(fileName, userAddress);
+
+                var forcesavePath = docManager.forcesavePath(fileName, userAddress, false);
+                if (forcesavePath == "") {
+                    forcesavePath = docManager.forcesavePath(fileName, userAddress, true);
+                }
+
+                var file = syncRequest("GET", downloadUri);
+                fileSystem.writeFileSync(forcesavePath, file.getBody());
+            } catch (ex) {
+                console.log(ex);
+            }
+
+            response.write("{\"error\":0}");
+            response.end();
+        };
+
+        if (body.status == 1) { //Editing
+            if (body.actions && body.actions[0].type == 0) { //finished edit
+                var user = body.actions[0].userid;
+                if (body.users.indexOf(user) == -1) {
+                    var key = body.key;
+                    try {
+                        documentService.commandRequest("forcesave", key);
+                    } catch (ex) {
+                        console.log(ex);
+                    }
+                }
+            }
+
+        } else if (body.status == 2 || body.status == 3) { //MustSave, Corrupted
+            processSave(body.url, body, fileName, userAddress, response);
+            return;
+        } else if (body.status == 6 || body.status == 7) { //MustForceSave, CorruptedForceSave
+            processForceSave(body.url, body, fileName, userAddress, response);
+            return;
+        }
+
+        response.write("{\"error\":0}");
+        response.end();
+    };
+
+    var readbody = function (request, response, fileName, userAddress) {
+        var content = "";
+        request.on('data', function (data) {
+            content += data;
+        });
+        request.on('end', function () {
+            var body = JSON.parse(content);
+            processTrack(response, body, fileName, userAddress);
+        });
+    };
+
+    if (req.body.hasOwnProperty("status")) {
+        processTrack(res, req.body, fileName, userAddress);
+    } else {
+        readbody(req, res, fileName, userAddress);
+    }
+});
+
+Environment.app.get(api_docserver_prefix + "/download", function(req, res) {
+    docManager.init(Environment.DSTEMPDIR, req, res);
+
+    var fileName = fileUtility.getFileName(req.query.fileName);
+    var userAddress = docManager.curUserHostAddress();
+
+    var path = docManager.forcesavePath(fileName, userAddress, false);
+    if (path == "") {
+        path = docManager.storagePath(fileName, userAddress);
+    }
+
+    res.setHeader("Content-Length", fileSystem.statSync(path).size);
+    res.setHeader("Content-Type", mime.lookup(path));
+
+    res.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+
+    var filestream = fileSystem.createReadStream(path);
+    filestream.pipe(res);
 });
 
 }

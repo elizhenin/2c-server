@@ -24,32 +24,13 @@
  *
 */
 
-var urlModule = require("url");
 var urllib = require("urllib");
-var jwt = require("jsonwebtoken");
 var fileUtility = require("./fileUtility");
 var guidManager = require("./guidManager");
 const configServer = {
     "commandUrl": "coauthoring/CommandService.ashx",
-    "converterUrl": "ConvertService.ashx","mobileRegEx": "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino",
-    "token": {
-        "enable": false,
-        "useforrequest": true,
-        "algorithmRequest": "HS256",
-        "authorizationHeader": "Authorization",
-        "authorizationHeaderPrefix": "Bearer ",
-        "secret": "hgieFESwivtw3489cmff",
-        "expiresIn": "5m"
-    }
-  }
+    "converterUrl": "ConvertService.ashx"}
 var siteUrl = configServer.siteUrl;
-var cfgSignatureEnable = configServer.token.enable;
-var cfgSignatureUseForRequest = configServer.token.useforrequest;
-var cfgSignatureAuthorizationHeader = configServer.token.authorizationHeader;
-var cfgSignatureAuthorizationHeaderPrefix = configServer.token.authorizationHeaderPrefix;
-var cfgSignatureSecretExpiresIn = configServer.token.expiresIn;
-var cfgSignatureSecret = configServer.token.secret;
-var cfgSignatureSecretAlgorithmRequest = configServer.token.algorithmRequest;
 
 var documentService = {};
 
@@ -89,10 +70,6 @@ documentService.getConvertedUri = function (documentUri, fromExtension, toExtens
         'Content-Type': 'application/json',
         "Accept": "application/json"
     };
-
-    if (cfgSignatureEnable && cfgSignatureUseForRequest) {
-        headers[cfgSignatureAuthorizationHeader] = cfgSignatureAuthorizationHeaderPrefix + this.fillJwtByUrl(uri, params);
-    }
 
     urllib.request(uri,
         {
@@ -193,10 +170,7 @@ documentService.commandRequest = function (method, documentRevisionId, callback)
     var headers = {
         'Content-Type': 'application/json'
     };
-    if (cfgSignatureEnable && cfgSignatureUseForRequest) {
-        headers[cfgSignatureAuthorizationHeader] = cfgSignatureAuthorizationHeaderPrefix + this.fillJwtByUrl(uri, params);
-    }
-
+ 
     urllib.request(uri,
         {
             method: "POST",
@@ -205,27 +179,5 @@ documentService.commandRequest = function (method, documentRevisionId, callback)
         },
         callback);
 };
-
-documentService.checkJwtHeader = function (req) {
-  var decoded = null;
-  var authorization = req.get(cfgSignatureAuthorizationHeader);
-  if (authorization && authorization.startsWith(cfgSignatureAuthorizationHeaderPrefix)) {
-    var token = authorization.substring(cfgSignatureAuthorizationHeaderPrefix.length);
-    try {
-      decoded = jwt.verify(token, cfgSignatureSecret);
-    } catch (err) {
-        console.log('checkJwtHeader error: name = ' + err.name + ' message = ' + err.message + ' token = ' + token)
-    }
-  }
-  return decoded;
-}
-
-documentService.fillJwtByUrl = function (uri, opt_dataObject, opt_iss, opt_payloadhash) {
-  var parseObject = urlModule.parse(uri, true);
-  var payload = {query: parseObject.query, payload: opt_dataObject, payloadhash: opt_payloadhash};
-
-  var options = {algorithm: cfgSignatureSecretAlgorithmRequest, expiresIn: cfgSignatureSecretExpiresIn, issuer: opt_iss};
-  return jwt.sign(payload, cfgSignatureSecret, options);
-}
 
 module.exports = documentService;
