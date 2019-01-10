@@ -57,12 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                             Окна.window(id_salt_reportadd).close();
                                             ФормыОкон[id_salt_reportadd] = false;
                                             ТаблицыЭкрана.СписокОтчетов.unload();
-                                            ТаблицыЭкрана.СписокОтчетов = InterfaceLayout.cells("a").attachTreeView({
-                                                multiselect: false, // boolean, optional, enables multiselect
-                                                checkboxes: false, // boolean, optional, enables checkboxes
-                                                dnd: true, // boolean, optional, enables drag-and-drop
-                                                items: ЗапросыАПИ.Отчеты.СписокДеревоГруппы()
-                                            });
+                                            СоздатьСписокОтчетов();
                                             break;
                                         }
                                     default:
@@ -107,12 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                                     Окна.window(id_salt_reportedit).close();
                                                     ФормыОкон[id_salt_reportedit] = false;
                                                     ТаблицыЭкрана.СписокОтчетов.unload();
-                                                    ТаблицыЭкрана.СписокОтчетов = InterfaceLayout.cells("a").attachTreeView({
-                                                        multiselect: false, // boolean, optional, enables multiselect
-                                                        checkboxes: false, // boolean, optional, enables checkboxes
-                                                        dnd: true, // boolean, optional, enables drag-and-drop
-                                                        items: ЗапросыАПИ.Отчеты.СписокДеревоГруппы()
-                                                    });
+                                                    СоздатьСписокОтчетов();
                                                     break;
                                                 }
                                             default:
@@ -190,12 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                                     Окна.window(id_salt_reportrights).close();
                                                     ФормыОкон[id_salt_reportrights] = false;
                                                     ТаблицыЭкрана.СписокОтчетов.unload();
-                                                    ТаблицыЭкрана.СписокОтчетов = InterfaceLayout.cells("a").attachTreeView({
-                                                        multiselect: false, // boolean, optional, enables multiselect
-                                                        checkboxes: false, // boolean, optional, enables checkboxes
-                                                        dnd: true, // boolean, optional, enables drag-and-drop
-                                                        items: ЗапросыАПИ.Отчеты.СписокДеревоГруппы()
-                                                    });
+                                                    СоздатьСписокОтчетов();
                                                     break;
                                                 }
                                             default:
@@ -215,47 +200,51 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        ТаблицыЭкрана.СписокОтчетов = InterfaceLayout.cells("a").attachTreeView({
-            multiselect: false, // boolean, optional, enables multiselect
-            checkboxes: false, // boolean, optional, enables checkboxes
-            dnd: true, // boolean, optional, enables drag-and-drop
-            items: ЗапросыАПИ.Отчеты.СписокДеревоГруппы()
-        });
-        ТаблицыЭкрана.СписокОтчетов.attachEvent("onSelect", function(id) {
-            try{
-            ТаблицыЭкрана.СписокТрафаретов.unload();
-            }catch(e){};
-            if (id.startsWith("item_")) {
-
-                ТаблицыЭкрана.СписокТрафаретов = InterfaceLayout.cells("b").attachTreeView({
-                    multiselect: false, // boolean, optional, enables multiselect
-                    checkboxes: false, // boolean, optional, enables checkboxes
-                    dnd: true, // boolean, optional, enables drag-and-drop
-                    items: ЗапросыАПИ.Отчеты.Трафареты.СписокДерево(ТаблицыЭкрана.СписокОтчетов.getItemText(id))
-                });
-                ТаблицыЭкрана.СписокТрафаретов.attachEvent("onDblClick", function(id) {
-                    var filename = "/api/documents/download/"+ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId()) + "/Трафареты/"+ТаблицыЭкрана.СписокТрафаретов.getItemText(id);
-                    filename = encodeURIComponent(filename);
-                    var id_salt_editor = Math.random() + "";
-                    Окна.createWindow({
-                        id: id_salt_editor,
-                        text: "Редактор",
-                        left: 10,
-                        top: 10,
-                        width: "600",
-                        height: "300",
-                        center: true,
-                        resize: true
+        window.СоздатьСписокОтчетов = function(){
+            ТаблицыЭкрана.СписокОтчетов = InterfaceLayout.cells("a").attachTreeView({
+                multiselect: false, // boolean, optional, enables multiselect
+                checkboxes: false, // boolean, optional, enables checkboxes
+                dnd: true, // boolean, optional, enables drag-and-drop
+                items: ЗапросыАПИ.Отчеты.СписокДеревоГруппы()
+            });
+            ТаблицыЭкрана.СписокОтчетов.attachEvent("onSelect", function(id) {
+                try{
+                ТаблицыЭкрана.СписокТрафаретов.unload();
+                }catch(e){};
+                if (id.startsWith("item_")) {
+    
+                    ТаблицыЭкрана.СписокТрафаретов = InterfaceLayout.cells("b").attachTreeView({
+                        multiselect: false, // boolean, optional, enables multiselect
+                        checkboxes: false, // boolean, optional, enables checkboxes
+                        dnd: true, // boolean, optional, enables drag-and-drop
+                        items: ЗапросыАПИ.Отчеты.Трафареты.СписокДерево(ТаблицыЭкрана.СписокОтчетов.getItemText(id))
                     });
-                    Окна.window(id_salt_editor).attachURL("/AppExcel/Excel.html?fileName="+filename);
-                    Окна.window(id_salt_editor).maximize();
-
-                    return true;
-                });    
-
-
-            }
-        });
+                    ТаблицыЭкрана.СписокТрафаретов.attachEvent("onDblClick", function(id) {
+                        var filename = "/api/documents/download/"+ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId()) + "/Трафареты/"+ТаблицыЭкрана.СписокТрафаретов.getItemText(id);
+                        filename = encodeURIComponent(filename);
+                        var id_salt_editor = Math.random() + "";
+                        Окна.createWindow({
+                            id: id_salt_editor,
+                            text: "Редактор",
+                            left: 10,
+                            top: 10,
+                            width: "600",
+                            height: "300",
+                            center: true,
+                            resize: true
+                        });
+                        Окна.window(id_salt_editor).attachURL("/AppExcel/Excel.html?fileName="+filename);
+                        Окна.window(id_salt_editor).maximize();
+    
+                        return true;
+                    });    
+    
+    
+                }
+            });
+        };СоздатьСписокОтчетов();
+        
+ 
 
    
 

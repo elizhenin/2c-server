@@ -38,7 +38,19 @@ module.exports = function (Environment) {
                             Название: RepRights.group.name
                         }
                     };
-                    Response.push(item);
+                    switch(req.AuthTokenDetails.role){
+                        case "editor":{
+                            Response.push(item);
+                            break;
+                        }
+                        case "receiver":{
+                            if (req.AuthTokenDetails.login == item.Пользователь){
+
+                                Response.push(item);
+                            }
+                            break;
+                        }
+                    }
                 });
                 Response = ResponsePrepare(true, Response, "Список отчетов успешно получен");
 
@@ -148,19 +160,119 @@ module.exports = function (Environment) {
         .get(Environment.api_url_prefix + api_documents_prefix + "/periods/list",
             function (req, res) {
                 //list names of periods of given report and their creation time, ordered by creation time
-                res.send(false);
+                var Request = req.query;
+                var Response;
+                var ResponsePrepare = function (status, items, message) {
+                    Response = {
+                        Статус: status, // true/false
+                        Периоды: items,
+                        Сообщение: message
+                    };
+                    Response = JSON.stringify(Response);
+                    return Response;
+                };
+                var PeriodsList = RepWrapper.getListPeriod(Request.report);
+                var Response = [];
+                PeriodsList.forEach(period => {
+                    var RepPerRights = RepWrapper.getRightsPeriod(Request.report,period);
+                    var item = {
+                        Название: period,
+                        Права: {
+                            Чтение: (RepPerRights.rights.charAt(4) == "-") ? false : true,
+                            Запись: (RepPerRights.rights.charAt(5) == "-") ? false : true
+                        }
+                    };
+                    switch(req.AuthTokenDetails.role){
+                        default:{
+                            Response.push(item);
+                        }
+                    }
+                });
+                Response = ResponsePrepare(true, Response, "Список периодов успешно получен");
+
+                res.send(Response);
             });
     Environment.app
         .get(Environment.api_url_prefix + api_documents_prefix + "/periods/add",
             function (req, res) {
-                //add new period directory
+                var Request = req.query;
+                var Response;
+                var ResponsePrepare = function (status, items, message) {
+                    Response = {
+                        Статус: status, // true/false
+                        Сервер: items,
+                        Сообщение: message
+                    };
+                    var cache = [];
+                    Response = JSON.stringify(Response, function (key, value) {
+                        if (typeof value === 'object' && value !== null) {
+                            if (cache.indexOf(value) !== -1) {
+                                // Duplicate reference found
+                                try {
+                                    // If this value does not reference a parent it can be deduped
+                                    return JSON.parse(JSON.stringify(value));
+                                } catch (error) {
+                                    // discard key if value cannot be deduped
+                                    return;
+                                }
+                            }
+                            // Store value in our collection
+                            cache.push(value);
+                        }
+                        return value;
+                    });
+                    cache = null; // Enable garbage collection
+                    return Response;
+                };
+                var Response = RepWrapper.newReportPeriod(Request.report, Request.name);
+                Response = ResponsePrepare(true, Response, "Новый период успешно создан");
+                res.send(Response);
                 res.send(false);
             });
     Environment.app
         .get(Environment.api_url_prefix + api_documents_prefix + "/periods/update",
             function (req, res) {
-                //save new name of period's directory
-                res.send(false);
+                var Request = req.query;
+                var Response;
+                var ResponsePrepare = function (status, items, message) {
+                    Response = {
+                        Статус: status, // true/false
+                        Сервер: items,
+                        Сообщение: message
+                    };
+                    var cache = [];
+                    Response = JSON.stringify(Response, function (key, value) {
+                        if (typeof value === 'object' && value !== null) {
+                            if (cache.indexOf(value) !== -1) {
+                                // Duplicate reference found
+                                try {
+                                    // If this value does not reference a parent it can be deduped
+                                    return JSON.parse(JSON.stringify(value));
+                                } catch (error) {
+                                    // discard key if value cannot be deduped
+                                    return;
+                                }
+                            }
+                            // Store value in our collection
+                            cache.push(value);
+                        }
+                        return value;
+                    });
+                    cache = null; // Enable garbage collection
+                    return Response;
+                };
+                var Response;
+                switch (Request.operation) {
+                    case "rename":
+                        {
+                            Response = RepWrapper.renameReportPeriod(Request.report, Request.current, Request.new);
+                            Response = ResponsePrepare(true, Response, "Период успешно переименован");
+                            break;
+                        }
+                    
+                }
+
+                res.send(Response);
             });
     Environment.app
         .get(Environment.api_url_prefix + api_documents_prefix + "/periods/delete",
