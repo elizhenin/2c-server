@@ -1,7 +1,9 @@
 DB/tokens
 DB/orgnames
 DB/groupnames
+DB/reports
 !DB/tokens/.tokensStorage
 !DB/orgnames/.orgnamesStorage
 !DB/groupnames/.groupnamesStorage
+!DB/reports/.reportsStorage
 sites/lsbrbook

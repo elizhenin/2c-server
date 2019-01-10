@@ -3,7 +3,7 @@ module.exports = function (Environment) {
     All functions from this block must check rights of user and visibility of files/directories,
     depending on user's role and assigned groups.
     */
-
+    var Goodies = require("./goodies");
     var fs = require('fs');
     var RepWrapper = require('./reports-wrapper');
     RepWrapper.DBDIR = Environment.DBDIR;
@@ -119,20 +119,22 @@ module.exports = function (Environment) {
                     return Response;
                 };
                 var Response;
-                switch(Request.operation){
-                    case "rename":{
-                        Response = RepWrapper.renameReport(Request.current, Request.new);
-                        Response = ResponsePrepare(true, Response, "Отчет успешно переименован");
-                        break;
-                    }
-                    case "rights":{
-                        Response = RepWrapper.setRightsReport(Request.name, Request.user, Request.group);
-                        Response = ResponsePrepare(true, Response, "Права отчета успешно назначены");
-                        
-                        break;
-                    }
+                switch (Request.operation) {
+                    case "rename":
+                        {
+                            Response = RepWrapper.renameReport(Request.current, Request.new);
+                            Response = ResponsePrepare(true, Response, "Отчет успешно переименован");
+                            break;
+                        }
+                    case "rights":
+                        {
+                            Response = RepWrapper.setRightsReport(Request.name, Request.user, Request.group);
+                            Response = ResponsePrepare(true, Response, "Права отчета успешно назначены");
+
+                            break;
+                        }
                 }
-               
+
                 res.send(Response);
             });
     Environment.app
@@ -224,4 +226,29 @@ module.exports = function (Environment) {
                 res.send(false);
             });
 
+    //direct download/upload xlsx by editor request
+    Environment.app
+        .get(Environment.api_url_prefix + api_documents_prefix + "/download/*",
+            function (req, res) {
+                path = require("path");
+                result = path.join(Environment.DBREPORTSSDIR, req.params[0]);
+                console.log('sending "' + result + '"');
+                res.sendFile(result);
+            });
+    Environment.app
+        .post(Environment.api_url_prefix + api_documents_prefix + "/upload",
+            function (req, res) {
+                filename = req.query.filename.replace("/api/documents/download/", "");
+                var JSZip = require("jszip");
+                var new_zip = new JSZip();
+                new_zip.loadAsync(Goodies.base64decode(req.body.Data))
+                    .then(function (zip) {
+                        zip
+                        .generateNodeStream({type:'nodebuffer',streamFiles:true})
+                        .pipe(fs.createWriteStream(Environment.DBREPORTSSDIR+"/"+filename))
+                        .on('finish', function () {
+                         res.send("Успешно сохранено, можете закрыть это окно");
+                        });
+                    });
+            });
 }

@@ -142,7 +142,7 @@
       }catch(e){}
       document.getElementById("_main")
          .innerHTML =
-         '<bdo Debug="problem" SuppressMessage="4" Layout_Url="ExcelDef.xml" Layout_Static="ExcelDef" Data_Url="'+filename+'" Upload_Tag="Debug" Upload_Xml="1" Upload_Type="Cells,EditAttrs,Index,NoEmpty" Export_Type="Export"  Export_Url="/AppExcelX"></bdo>';
+         '<bdo Debug="problem" SuppressMessage="4" Layout_Url="ExcelDef.xml" Layout_Static="ExcelDef" Data_Url="'+filename+'" Upload_Tag="Debug" Upload_Xml="1" Upload_Type="Cells,EditAttrs,Index,NoEmpty" Export_Type="Export"  Export_Url="/api/documents/upload?filename='+filename+'"></bdo>';
    </script>
 
 </body>
