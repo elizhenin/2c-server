@@ -5,11 +5,7 @@
     "author": "Evgeny Lizhenin",
     "dependencies": {
         "authenticate-pam": "^1.0.2",
-        "ejs": "^2.6.1",
         "express": "^4.16.3",
-        "http-proxy-middleware": "^0.19.1",
-        "jsonwebtoken": "^8.4.0",
-        "request": "^2.88.0",
-        "urllib": "^2.32.0"
+        "unzip": "^0.1.11"
     }
 }

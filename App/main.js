@@ -7,7 +7,6 @@ Environment.DBTOKENSDIR = Environment.DBDIR + "/tokens";
 Environment.DBREPORTSSDIR = Environment.DBDIR + "/reports";
 Environment.DBORGNAMESDIR = Environment.DBDIR + "/orgnames";
 Environment.DBGROUPNAMESDIR= Environment.DBDIR + "/groupnames";
-Environment.DSTEMPDIR = Environment.APPDIR + "dstemp";
 Environment.upload_limit = '100mb';
 Environment.listen_port = 8080;
 Environment.workers_per_cpu = 1;
