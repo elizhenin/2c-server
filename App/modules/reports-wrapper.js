@@ -155,5 +155,30 @@ module.exports = {
             result = e;
         }
         return  result;
+    },
+    rightsReportPeriod: function(report, period, access){
+        var execSync = require('child_process').execSync;
+        var result ="";
+        var rights = "";
+        switch(access){
+            case "opened":{
+                rights = "g=rwx";
+                break;
+            }
+            case "closed":{
+                rights = "g=rx";
+                break;
+            }
+            default:{}
+        }
+        dirname = this.DBREPORTSSDIR+"/"+report.replace(/(\s+)/g, '\\$1')+"/"+"Первичные"+"/"+period.replace(/(\s+)/g, '\\$1');
+     
+        try{
+            result = execSync('chmod ' + rights + " "+ dirname).toString('utf8');
+        }
+        catch(e){
+            result = e;
+        }
+        return  result;
     }
 }

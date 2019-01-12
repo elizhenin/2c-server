@@ -227,13 +227,25 @@ window.ЗапросыАПИ = {
                     id: "group_" + ОтветСервера.Отчеты[i].Группа.Код,
                     text: ОтветСервера.Отчеты[i].Группа.Название,
                     open: 0,
-                    items: []
+                    items: [],
+                    icons: {
+                        file: "fa-folder",
+                        folder_opened: "fa-folder-open",
+                        folder_closed: "fa-folder"
+                    },
+                    icon_color:"goldenrod"
                 };
             };
             for (var i = 0; i < ОтветСервера.Отчеты.length; i++) {
                 Список[ОтветСервера.Отчеты[i].Группа.Код * 1].items.push({
                     id: "item_" + i,
-                    text: ОтветСервера.Отчеты[i].Название
+                    text: ОтветСервера.Отчеты[i].Название,
+                    icons: {
+                        file: "fa-table",
+                        folder_opened: "fa-table",
+                        folder_closed: "fa-table"
+                    },
+                    icon_color:"green"
                 });
 
             };
@@ -278,11 +290,23 @@ window.ЗапросыАПИ = {
                 //Сейчас хардкод на 2 стандартных
                 var Список = [{
                         id: "item_0",
-                        text: "Первичный.xlsx"
+                        text: "Первичный.xlsx",
+                        icons: {
+                            file: "fa-file-excel",
+                            folder_opened: "fa-file-excel",
+                            folder_closed: "fa-file-excel"
+                        },
+                        icon_color:"green"
                     },
                     {
                         id: "item_1",
-                        text: "Сводный.xlsx"
+                        text: "Сводный.xlsx",
+                        icons: {
+                            file: "fa-file-excel",
+                            folder_opened: "fa-file-excel",
+                            folder_closed: "fa-file-excel"
+                        },
+                        icon_color:"green"
                     }
                 ]
 
@@ -298,13 +322,25 @@ window.ЗапросыАПИ = {
                         id: "closed",
                         text: "Закрытые",
                         items: [],
-                        open: 0
+                        open: 0,
+                        icons: {
+                            file: "fa-lock",
+                            folder_opened: "fa-lock",
+                            folder_closed: "fa-lock"
+                        },
+                        icon_color:"#fd7e14"
                     },
                     {
                         id: "opened",
                         text: "Открытые",
                         items: [],
-                        open: 1
+                        open: 1,
+                        icons: {
+                            file: "fa-lock-open",
+                            folder_opened: "fa-lock-open",
+                            folder_closed: "fa-lock-open"
+                        },
+                        icon_color:"#fd7e14"
                     }
                 ];
                 var Параметры = {
@@ -318,7 +354,13 @@ window.ЗапросыАПИ = {
                             {
                                 Список[1].items.push({
                                     id: "item_" + i,
-                                    text: ОтветСервера.Периоды[i].Название
+                                    text: ОтветСервера.Периоды[i].Название,
+                        icons: {
+                            file: "fa-calendar",
+                            folder_opened: "fa-calendar",
+                            folder_closed: "fa-calendar"
+                        },
+                        icon_color:"blue"
                                 });
                                 break;
                             }
@@ -326,7 +368,13 @@ window.ЗапросыАПИ = {
                             {
                                 Список[0].items.push({
                                     id: "item_" + i,
-                                    text: ОтветСервера.Периоды[i].Название
+                                    text: ОтветСервера.Периоды[i].Название,
+                                    icons: {
+                                        file: "fa-calendar",
+                                        folder_opened: "fa-calendar",
+                                        folder_closed: "fa-calendar"
+                                    },
+                                    icon_color:"blue"
                                 });
                                 break;
                             }
@@ -359,6 +407,16 @@ window.ЗапросыАПИ = {
                 var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/documents/periods/update", Параметры, null));
                 return ОтветСервера;
             },
+            НазначитьДоступ: function (Отчет, НазваниеПериода, Доступ){
+                var Параметры = {
+                    operation: "rights",
+                    report: Отчет,
+                    period: НазваниеПериода,
+                    access: Доступ
+                };
+                var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/documents/periods/update", Параметры, null));
+                return ОтветСервера;
+            }
         }
     },
 

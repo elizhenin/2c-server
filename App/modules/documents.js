@@ -269,6 +269,12 @@ module.exports = function (Environment) {
                             Response = ResponsePrepare(true, Response, "Период успешно переименован");
                             break;
                         }
+                        case "rights":
+                        {
+                            Response = RepWrapper.rightsReportPeriod(Request.report, Request.period, Request.access);
+                            Response = ResponsePrepare(true, Response, "Доступ к периоду изменен");
+                            break;
+                        }
                     
                 }
 

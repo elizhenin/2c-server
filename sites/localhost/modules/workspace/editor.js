@@ -202,9 +202,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         window.СоздатьСписокОтчетов = function(){
             ТаблицыЭкрана.СписокОтчетов = InterfaceLayout.cells("a").attachTreeView({
+                iconset: "font_awesome",
                 multiselect: false, // boolean, optional, enables multiselect
                 checkboxes: false, // boolean, optional, enables checkboxes
-                dnd: true, // boolean, optional, enables drag-and-drop
+                dnd: false, // boolean, optional, enables drag-and-drop
                 items: ЗапросыАПИ.Отчеты.СписокДеревоГруппы()
             });
             ТаблицыЭкрана.СписокОтчетов.attachEvent("onSelect", function(id) {
@@ -214,9 +215,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (id.startsWith("item_")) {
     
                     ТаблицыЭкрана.СписокТрафаретов = InterfaceLayout.cells("b").attachTreeView({
+                        iconset: "font_awesome",
                         multiselect: false, // boolean, optional, enables multiselect
                         checkboxes: false, // boolean, optional, enables checkboxes
-                        dnd: true, // boolean, optional, enables drag-and-drop
+                        dnd: false, // boolean, optional, enables drag-and-drop
                         items: ЗапросыАПИ.Отчеты.Трафареты.СписокДерево(ТаблицыЭкрана.СписокОтчетов.getItemText(id))
                     });
                     ТаблицыЭкрана.СписокТрафаретов.attachEvent("onDblClick", function(id) {

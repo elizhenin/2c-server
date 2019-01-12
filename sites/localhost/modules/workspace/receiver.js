@@ -97,60 +97,60 @@ document.addEventListener('DOMContentLoaded', function () {
                             alert("Выберите период");
                         }
                         if (ВыбранныйОтчет && ВыбранныйПериод) {
-                        
-                         
-                                var id_salt_periodedit = Math.random() + "";
-                                Окна.createWindow({
-                                    id: id_salt_periodedit,
-                                    text: "Переименовать Период",
-                                    left: 10,
-                                    top: 10,
-                                    width: "400",
-                                    height: "150",
-                                    center: true,
-                                    resize: true
-                                });
-                                ФормыОкон[id_salt_periodedit] = Окна.window(id_salt_periodedit).attachForm();
-                                ФормыОкон[id_salt_periodedit].loadStruct("/views/receiver/period_edit_form.json", "json", function () {
-                                    ФормыОкон[id_salt_periodedit].setItemValue("name", ТаблицыЭкрана.СписокПериодов.getItemText(ТаблицыЭкрана.СписокПериодов.getSelectedId()));
-                                    ФормыОкон[id_salt_periodedit].addItem(null, {
-                                        "name": "report",
-                                        "type": "input",
-                                        "hidden": true,
-                                        "value": ВыбранныйОтчет
-                                    });
-                                    ФормыОкон[id_salt_periodedit].addItem(null, {
-                                        "name": "current",
-                                        "type": "input",
-                                        "hidden": true,
-                                        "value": ВыбранныйПериод
-                                    });
 
-                                    ФормыОкон[id_salt_periodedit].attachEvent("onButtonClick", function (id) {
-                                        switch (id) {
-                                            case "save":
-                                                {
-                                                    var Отчет = ФормыОкон[id_salt_periodedit].getInput("report").value;
-                                                    var НовоеНазвание = ФормыОкон[id_salt_periodedit].getInput("name").value;
-                                                    var ТекущееНазвание = ФормыОкон[id_salt_periodedit].getInput("current").value;
-                                                    ЗапросыАПИ.Отчеты.Периоды.Сохранить(Отчет, НовоеНазвание, ТекущееНазвание);
-                                                    Окна.window(id_salt_periodedit).close();
-                                                    ФормыОкон[id_salt_periodedit] = false;
-                                                    try {
-                                                        ТаблицыЭкрана.СписокПериодов.unload();
-                                                    } catch (e) {};
-                                                    if (ТаблицыЭкрана.СписокОтчетов.getSelectedId().startsWith("item_")) {
-                                                        СоздатьСписокПериодов(ТаблицыЭкрана.СписокОтчетов.getSelectedId());
-                                                    }
-                                                    break;
-                                                }
-                                            default:
-                                                {}
-                                        }
-                                    });
+
+                            var id_salt_periodedit = Math.random() + "";
+                            Окна.createWindow({
+                                id: id_salt_periodedit,
+                                text: "Переименовать Период",
+                                left: 10,
+                                top: 10,
+                                width: "400",
+                                height: "150",
+                                center: true,
+                                resize: true
+                            });
+                            ФормыОкон[id_salt_periodedit] = Окна.window(id_salt_periodedit).attachForm();
+                            ФормыОкон[id_salt_periodedit].loadStruct("/views/receiver/period_edit_form.json", "json", function () {
+                                ФормыОкон[id_salt_periodedit].setItemValue("name", ТаблицыЭкрана.СписокПериодов.getItemText(ТаблицыЭкрана.СписокПериодов.getSelectedId()));
+                                ФормыОкон[id_salt_periodedit].addItem(null, {
+                                    "name": "report",
+                                    "type": "input",
+                                    "hidden": true,
+                                    "value": ВыбранныйОтчет
                                 });
-                            }
-                      
+                                ФормыОкон[id_salt_periodedit].addItem(null, {
+                                    "name": "current",
+                                    "type": "input",
+                                    "hidden": true,
+                                    "value": ВыбранныйПериод
+                                });
+
+                                ФормыОкон[id_salt_periodedit].attachEvent("onButtonClick", function (id) {
+                                    switch (id) {
+                                        case "save":
+                                            {
+                                                var Отчет = ФормыОкон[id_salt_periodedit].getInput("report").value;
+                                                var НовоеНазвание = ФормыОкон[id_salt_periodedit].getInput("name").value;
+                                                var ТекущееНазвание = ФормыОкон[id_salt_periodedit].getInput("current").value;
+                                                ЗапросыАПИ.Отчеты.Периоды.Сохранить(Отчет, НовоеНазвание, ТекущееНазвание);
+                                                Окна.window(id_salt_periodedit).close();
+                                                ФормыОкон[id_salt_periodedit] = false;
+                                                try {
+                                                    ТаблицыЭкрана.СписокПериодов.unload();
+                                                } catch (e) {};
+                                                if (ТаблицыЭкрана.СписокОтчетов.getSelectedId().startsWith("item_")) {
+                                                    СоздатьСписокПериодов(ТаблицыЭкрана.СписокОтчетов.getSelectedId());
+                                                }
+                                                break;
+                                            }
+                                        default:
+                                            {}
+                                    }
+                                });
+                            });
+                        }
+
 
                         break;
                     }
@@ -162,9 +162,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         window.СоздатьСписокОтчетов = function () {
             ТаблицыЭкрана.СписокОтчетов = InterfaceLayout.cells("a").attachTreeView({
+                iconset: "font_awesome",
                 multiselect: false, // boolean, optional, enables multiselect
                 checkboxes: false, // boolean, optional, enables checkboxes
-                dnd: true, // boolean, optional, enables drag-and-drop
+                dnd: false, // boolean, optional, enables drag-and-drop
                 items: ЗапросыАПИ.Отчеты.СписокДеревоГруппы()
             });
             ТаблицыЭкрана.СписокОтчетов.attachEvent("onSelect", function (id) {
@@ -180,13 +181,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
         window.СоздатьСписокПериодов = function (id) {
             ТаблицыЭкрана.СписокПериодов = InterfaceLayout.cells("b").attachTreeView({
+                iconset: "font_awesome",
                 multiselect: false, // boolean, optional, enables multiselect
                 checkboxes: false, // boolean, optional, enables checkboxes
                 dnd: true, // boolean, optional, enables drag-and-drop
                 items: ЗапросыАПИ.Отчеты.Периоды.СписокДерево(ТаблицыЭкрана.СписокОтчетов.getItemText(id))
             });
+            ТаблицыЭкрана.СписокПериодов.attachEvent("onDrop", function (id, pId, index) {
+                ЗапросыАПИ.Отчеты.Периоды.НазначитьДоступ(
+                    ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId()),
+                    ТаблицыЭкрана.СписокПериодов.getItemText(id),
+                    pId
+                );
+                return true;
+            });
+            ТаблицыЭкрана.СписокПериодов.attachEvent("onDragOver", function (id, pId, index) {
 
+                switch (pId) {
+                    case "opened":
+                        {
+                            return true;
+                        }
+                    case "closed":
+                        {
+                            return true;
+                        }
+                    default:
+                        {
+                            return false
+                        }
+                }
+            });
         }
+
+
+
     });
 
 
