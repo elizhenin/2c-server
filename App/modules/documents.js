@@ -50,6 +50,14 @@ module.exports = function (Environment) {
                             }
                             break;
                         }
+                        case "sender":{
+                            Groups  = RepWrapper.AuthWrapper.getGroupsByUser(req.AuthTokenDetails.login);
+                            if(Groups.includes(item.Группа.Код)){
+                                Response.push(item);
+                            }
+                            
+                            break;
+                        }
                     }
                 });
                 Response = ResponsePrepare(true, Response, "Список отчетов успешно получен");
@@ -315,7 +323,16 @@ module.exports = function (Environment) {
         .get(Environment.api_url_prefix + api_documents_prefix + "/document/copy",
             function (req, res) {
                 //copy template file from report's directory to period's directory, and rename it to user organisation's name
-                res.send(false);
+                var Request = req.query;
+                var Response = false;
+                switch(req.AuthTokenDetails.role){
+                    case "sender":{
+                        RepWrapper.copySampleToPeriod(Request.report,Request.period,RepWrapper.AuthWrapper.getOrgByUser(req.AuthTokenDetails.login));
+                        Response = Environment.api_url_prefix + api_documents_prefix + "/download/"+ Request.report + "/Первичные/"+Request.period+"/"+RepWrapper.AuthWrapper.getOrgByUser(req.AuthTokenDetails.login)+".xlsx";
+                        break;
+                    }
+                }
+                res.send(Response);
             });
     Environment.app
         .get(Environment.api_url_prefix + api_documents_prefix + "/document/delete",

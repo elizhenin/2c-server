@@ -417,7 +417,16 @@ window.ЗапросыАПИ = {
                 var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/documents/periods/update", Параметры, null));
                 return ОтветСервера;
             }
+        },
+        ДокументПоТрафарету: function (Отчет, НазваниеПериода){
+            var Параметры = {
+                report: Отчет,
+                period: НазваниеПериода
+            };
+            var ОтветСервера = ЗапросыАПИ.GET.Sync("/documents/document/copy", Параметры, null);
+            return ОтветСервера;
         }
+    
     },
 
 }

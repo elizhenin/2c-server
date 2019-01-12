@@ -180,5 +180,17 @@ module.exports = {
             result = e;
         }
         return  result;
+    },
+    copySampleToPeriod: function(report, period, org_id){
+        var fs = require("fs");
+        var result ="";
+        sample_filename = this.DBREPORTSSDIR+"/"+report+"/"+"Трафареты"+"/"+"Первичный.xlsx";
+        org_filename = this.DBREPORTSSDIR+"/"+report+"/"+"Первичные"+"/"+period+"/"+org_id+".xlsx";
+        if (fs.existsSync(org_filename)){
+            result = true;
+        }else {
+            fs.copyFileSync(sample_filename,org_filename);
+        }
+        return result;
     }
 }
