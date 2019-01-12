@@ -233,7 +233,7 @@ window.ЗапросыАПИ = {
                         folder_opened: "fa-folder-open",
                         folder_closed: "fa-folder"
                     },
-                    icon_color:"goldenrod"
+                    icon_color: "goldenrod"
                 };
             };
             for (var i = 0; i < ОтветСервера.Отчеты.length; i++) {
@@ -245,7 +245,7 @@ window.ЗапросыАПИ = {
                         folder_opened: "fa-table",
                         folder_closed: "fa-table"
                     },
-                    icon_color:"green"
+                    icon_color: "green"
                 });
 
             };
@@ -296,7 +296,7 @@ window.ЗапросыАПИ = {
                             folder_opened: "fa-file-excel",
                             folder_closed: "fa-file-excel"
                         },
-                        icon_color:"green"
+                        icon_color: "green"
                     },
                     {
                         id: "item_1",
@@ -306,7 +306,7 @@ window.ЗапросыАПИ = {
                             folder_opened: "fa-file-excel",
                             folder_closed: "fa-file-excel"
                         },
-                        icon_color:"green"
+                        icon_color: "green"
                     }
                 ]
 
@@ -328,7 +328,7 @@ window.ЗапросыАПИ = {
                             folder_opened: "fa-lock",
                             folder_closed: "fa-lock"
                         },
-                        icon_color:"#fd7e14"
+                        icon_color: "#fd7e14"
                     },
                     {
                         id: "opened",
@@ -340,7 +340,7 @@ window.ЗапросыАПИ = {
                             folder_opened: "fa-lock-open",
                             folder_closed: "fa-lock-open"
                         },
-                        icon_color:"#fd7e14"
+                        icon_color: "#fd7e14"
                     }
                 ];
                 var Параметры = {
@@ -355,12 +355,12 @@ window.ЗапросыАПИ = {
                                 Список[1].items.push({
                                     id: "item_" + i,
                                     text: ОтветСервера.Периоды[i].Название,
-                        icons: {
-                            file: "fa-calendar",
-                            folder_opened: "fa-calendar",
-                            folder_closed: "fa-calendar"
-                        },
-                        icon_color:"blue"
+                                    icons: {
+                                        file: "fa-calendar",
+                                        folder_opened: "fa-calendar",
+                                        folder_closed: "fa-calendar"
+                                    },
+                                    icon_color: "blue"
                                 });
                                 break;
                             }
@@ -374,13 +374,13 @@ window.ЗапросыАПИ = {
                                         folder_opened: "fa-calendar",
                                         folder_closed: "fa-calendar"
                                     },
-                                    icon_color:"blue"
+                                    icon_color: "blue"
                                 });
                                 break;
                             }
                     }
                 };
-                
+
                 if (Список.length) {
                     Список.forEach(Группа => {
                         ГотовыйСписок.push(Группа);
@@ -407,7 +407,7 @@ window.ЗапросыАПИ = {
                 var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/documents/periods/update", Параметры, null));
                 return ОтветСервера;
             },
-            НазначитьДоступ: function (Отчет, НазваниеПериода, Доступ){
+            НазначитьДоступ: function (Отчет, НазваниеПериода, Доступ) {
                 var Параметры = {
                     operation: "rights",
                     report: Отчет,
@@ -418,7 +418,42 @@ window.ЗапросыАПИ = {
                 return ОтветСервера;
             }
         },
-        ДокументПоТрафарету: function (Отчет, НазваниеПериода){
+        Первичные: {
+            СписокДерево: function (НазваниеОтчета, НазваниеПериода) {
+                //должен запросить сервер и получить перечень каталогов периодов отчетов, с указанием RO RW.
+                //полученный список переверстать в структуру для виджета дерева в формате Режим->Период
+                var ГотовыйСписок = [];
+                var Список = [];
+                var Параметры = {
+                    report: НазваниеОтчета,
+                    period: НазваниеПериода
+                };
+                var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/documents/document/list", Параметры, null));
+
+                for (var i = 0; i < ОтветСервера.Отчеты.length; i++) {
+                    Список.push({
+                        id: ОтветСервера.Отчеты[i].Код,
+                        text: ОтветСервера.Отчеты[i].Название,
+                        icons: {
+                            file: "fa-file-excel",
+                            folder_opened: "fa-file-excel",
+                            folder_closed: "fa-file-excel"
+                        },
+                        icon_color: "green"
+                    });
+
+                };
+
+                if (Список.length) {
+                    Список.forEach(Отчет => {
+                        ГотовыйСписок.push(Отчет);
+                    });
+                }
+
+                return ГотовыйСписок;
+            }
+        },
+        ДокументПоТрафарету: function (Отчет, НазваниеПериода) {
             var Параметры = {
                 report: Отчет,
                 period: НазваниеПериода
@@ -426,7 +461,7 @@ window.ЗапросыАПИ = {
             var ОтветСервера = ЗапросыАПИ.GET.Sync("/documents/document/copy", Параметры, null);
             return ОтветСервера;
         }
-    
+
     },
 
 }

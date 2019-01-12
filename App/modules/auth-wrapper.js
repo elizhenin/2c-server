@@ -171,7 +171,14 @@ module.exports = {
         });
         return CleanResult;
     },
-
+    getOrgNameByCode: function (code) {
+        try {
+            var fs = require("fs");
+            return fs.readFileSync(this.DBORGNAMESDIR + "/" + this.orgPrefix + code).toString();
+        } catch (e) {
+            return false;
+        }
+    },
 
     createOrg: function (name, code) {
         var fs = require('fs');

@@ -20,7 +20,7 @@
         },
         {
             "id": "c",
-            "text":"Подробнее",
+            "text":"Первичные результаты",
             "header": true,
             "collapse": false
         }

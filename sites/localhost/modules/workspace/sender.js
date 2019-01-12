@@ -41,25 +41,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 dnd: false, // boolean, optional, enables drag-and-drop
                 items: ЗапросыАПИ.Отчеты.Периоды.СписокДерево(ТаблицыЭкрана.СписокОтчетов.getItemText(id))
             });
-            ТаблицыЭкрана.СписокПериодов.attachEvent("onDblClick", function(id) {
-                var filename = ЗапросыАПИ.Отчеты.ДокументПоТрафарету(ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId()),ТаблицыЭкрана.СписокПериодов.getItemText(id));//"/api/documents/download/"+ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId()) + "/Периоды/"+ТаблицыЭкрана.СписокПериодов.getItemText(id)+"/"+"ОргНейм"+".xlsx";
-                filename = encodeURIComponent(filename);
-                var id_salt_editor = Math.random() + "";
-                Окна.createWindow({
-                    id: id_salt_editor,
-                    text: "Редактор",
-                    left: 10,
-                    top: 10,
-                    width: "600",
-                    height: "300",
-                    center: true,
-                    resize: true
-                });
-                Окна.window(id_salt_editor).attachURL("/AppExcel/Excel.html?fileName="+filename);
-                Окна.window(id_salt_editor).maximize();
-
+            ТаблицыЭкрана.СписокПериодов.attachEvent("onDblClick", function (id) {
+                if (id.startsWith("item_")) {
+                    var filename = ЗапросыАПИ.Отчеты.ДокументПоТрафарету(ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId()), ТаблицыЭкрана.СписокПериодов.getItemText(id)); //"/api/documents/download/"+ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId()) + "/Периоды/"+ТаблицыЭкрана.СписокПериодов.getItemText(id)+"/"+"ОргНейм"+".xlsx";
+                    filename = encodeURIComponent(filename);
+                    var id_salt_editor = Math.random() + "";
+                    Окна.createWindow({
+                        id: id_salt_editor,
+                        text: "Редактор",
+                        left: 10,
+                        top: 10,
+                        width: "600",
+                        height: "300",
+                        center: true,
+                        resize: true
+                    });
+                    Окна.window(id_salt_editor).attachURL("/AppExcel/Excel.html?fileName=" + filename);
+                    Окна.window(id_salt_editor).maximize();
+                }
                 return true;
-            }); 
+            });
 
         }
 

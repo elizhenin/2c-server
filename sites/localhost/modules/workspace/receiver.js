@@ -171,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
             ТаблицыЭкрана.СписокОтчетов.attachEvent("onSelect", function (id) {
                 try {
                     ТаблицыЭкрана.СписокПериодов.unload();
+                    ТаблицыЭкрана.СписокПервички.unload();
                 } catch (e) {};
                 if (id.startsWith("item_")) {
                     СоздатьСписокПериодов(id);
@@ -186,6 +187,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 checkboxes: false, // boolean, optional, enables checkboxes
                 dnd: true, // boolean, optional, enables drag-and-drop
                 items: ЗапросыАПИ.Отчеты.Периоды.СписокДерево(ТаблицыЭкрана.СписокОтчетов.getItemText(id))
+            });
+            ТаблицыЭкрана.СписокПериодов.attachEvent("onSelect", function (id) {
+                try {
+                    ТаблицыЭкрана.СписокПервички.unload();
+                } catch (e) {};
+                if (id.startsWith("item_")) {
+                    СоздатьСписокПервички(id);
+                }
             });
             ТаблицыЭкрана.СписокПериодов.attachEvent("onDrop", function (id, pId, index) {
                 ЗапросыАПИ.Отчеты.Периоды.НазначитьДоступ(
@@ -212,6 +221,39 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                 }
             });
+        }
+
+        window.СоздатьСписокПервички = function (id) {
+            ТаблицыЭкрана.СписокПервички = InterfaceLayout.cells("c").attachTreeView({
+                iconset: "font_awesome",
+                multiselect: false, // boolean, optional, enables multiselect
+                checkboxes: false, // boolean, optional, enables checkboxes
+                dnd: false, // boolean, optional, enables drag-and-drop
+                items: ЗапросыАПИ.Отчеты.Первичные.СписокДерево(ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId()),ТаблицыЭкрана.СписокПериодов.getItemText(id))
+            });
+            ТаблицыЭкрана.СписокПервички.attachEvent("onDblClick", function(id) {
+                var filename = "/api/documents/download/"+ТаблицыЭкрана.СписокОтчетов.getItemText(
+                    ТаблицыЭкрана.СписокОтчетов.getSelectedId()
+                    ) + "/Первичные/"+ТаблицыЭкрана.СписокПериодов.getItemText(
+                        ТаблицыЭкрана.СписокПериодов.getSelectedId()
+                        )+"/"+id;
+                filename = encodeURIComponent(filename);
+                var id_salt_editor = Math.random() + "";
+                Окна.createWindow({
+                    id: id_salt_editor,
+                    text: "Редактор",
+                    left: 10,
+                    top: 10,
+                    width: "600",
+                    height: "300",
+                    center: true,
+                    resize: true
+                });
+                Окна.window(id_salt_editor).attachURL("/AppExcel/Excel.html?fileName="+filename);
+                Окна.window(id_salt_editor).maximize();
+
+                return true;
+            });  
         }
 
 

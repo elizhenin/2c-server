@@ -120,7 +120,7 @@ module.exports = {
                 }
             }
             try{
-                var fs = require("fs");
+                
                 resultObj.group.name = this.AuthWrapper.getGroupNameByCode(resultObj.group.code)
             }
             catch(e){
@@ -191,6 +191,22 @@ module.exports = {
         }else {
             fs.copyFileSync(sample_filename,org_filename);
         }
+        return result;
+    },
+    listReportPeriodDocs: function(report,period){
+        var fs = require("fs");
+        var result ="";
+        lookup_dir = this.DBREPORTSSDIR+"/"+report+"/"+"Первичные"+"/"+period;
+        var result = [];
+        fs.readdirSync(lookup_dir, {withFileTypes: true}).forEach(item => {
+            if (item.isFile()){
+
+                result.push({
+                    Код: item.name,
+                    Название: this.AuthWrapper.getOrgNameByCode(item.name.replace(".xlsx",""))
+                });
+            }
+        });
         return result;
     }
 }
