@@ -13,6 +13,75 @@ document.addEventListener('DOMContentLoaded', function () {
         window.ФормыОкон = {};
         window.ТаблицыЭкрана = {};
 
+        var МенюПериодов = InterfaceLayout.cells("b").attachMenu({
+            iconset: "awesome",
+            items: {
+                "id": "main_menu",
+                "items": [{
+                        "id": "copy",
+                        "text": "Копировать",
+                        "img":"fas fa-copy",
+                        "imgDis": "fas fa-copy",
+                        "color": "green"
+                    },
+                    {
+                        "id": "clipboard",
+                        "text": "",
+                        "disabled":true
+                    },
+                    {
+                        "id": "paste",
+                        "text": "Вставить",
+                        "img":"fas fa-paste",
+                        "imgDis": "fas fa-paste"
+                    }
+                ]
+            }
+        });
+        МенюПериодов.attachEvent("onClick", function (id) {
+            switch (id) {
+                case "copy":
+                    {
+                        try{
+                            if(ТаблицыЭкрана.СписокПериодов.getSelectedId().startsWith("item_")){
+                            МенюПериодов.setItemText("clipboard", ТаблицыЭкрана.СписокПериодов.getItemText(ТаблицыЭкрана.СписокПериодов.getSelectedId()));  
+                            }else{
+                                throw "not_an_item";
+                            }
+                        }
+                        catch(e){
+                            alert("Выберите период-исходник для копирования значений");
+                        };
+                        break;
+                    }
+                    case "paste":
+                    {
+                        ИсхПериод = МенюПериодов.getItemText("clipboard");
+                        if(ИсхПериод != ""){
+                            try{
+                                if(ТаблицыЭкрана.СписокПериодов.getSelectedId().startsWith("item_")){
+                                ЦелПериод = ТаблицыЭкрана.СписокПериодов.getItemText(ТаблицыЭкрана.СписокПериодов.getSelectedId());
+                                }else {
+                                    throw "not_an_item";
+                                }
+                                if (ИсхПериод == ЦелПериод){
+                                    throw "dest_equal_to_src";
+                                }
+                                Отчет = ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId());
+                                filename = ЗапросыАПИ.Отчеты.ДокументПоДокументу(Отчет, ИсхПериод, ЦелПериод);
+                                ОткрытьРедактор(filename);
+                            }
+                            catch(e){
+                                alert("Выберите целевой период для вставки значений");
+                            };
+                            
+                        }else{
+                            alert("Скопируйте период-исходник для вставки значений");
+                        }
+                        break;
+                    }
+                }
+            });
 
         window.СоздатьСписокОтчетов = function () {
             ТаблицыЭкрана.СписокОтчетов = InterfaceLayout.cells("a").attachTreeView({
@@ -44,26 +113,29 @@ document.addEventListener('DOMContentLoaded', function () {
             ТаблицыЭкрана.СписокПериодов.attachEvent("onDblClick", function (id) {
                 if (id.startsWith("item_")) {
                     var filename = ЗапросыАПИ.Отчеты.ДокументПоТрафарету(ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId()), ТаблицыЭкрана.СписокПериодов.getItemText(id)); //"/api/documents/download/"+ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId()) + "/Периоды/"+ТаблицыЭкрана.СписокПериодов.getItemText(id)+"/"+"ОргНейм"+".xlsx";
-                    filename = encodeURIComponent(filename);
-                    var id_salt_editor = Math.random() + "";
-                    Окна.createWindow({
-                        id: id_salt_editor,
-                        text: "Редактор",
-                        left: 10,
-                        top: 10,
-                        width: "600",
-                        height: "300",
-                        center: true,
-                        resize: true
-                    });
-                    Окна.window(id_salt_editor).attachURL("/AppExcel/Excel.html?fileName=" + filename);
-                    Окна.window(id_salt_editor).maximize();
+                    ОткрытьРедактор(filename);
                 }
                 return true;
             });
 
         }
 
+        window.ОткрытьРедактор = function(filename){
+            filename = encodeURIComponent(filename);
+            var id_salt_editor = Math.random() + "";
+            Окна.createWindow({
+                id: id_salt_editor,
+                text: "Редактор",
+                left: 10,
+                top: 10,
+                width: "600",
+                height: "300",
+                center: true,
+                resize: true
+            });
+            Окна.window(id_salt_editor).attachURL("/AppExcel/Excel.html?fileName=" + filename);
+            Окна.window(id_salt_editor).maximize();
+        };
 
     });
 
