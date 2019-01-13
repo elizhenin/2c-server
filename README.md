@@ -6,3 +6,5 @@ In progress: replace LibreOffice Online to OnlyOffice (documentserver) due to no
 Now without NW.js. Based on https://github.com/elizhenin/webserver project as backend, clientside 
 logic, and linux PAM as user management.
 
+Update: still no OnlyOffice at this point of progress, but system fully functional with TreeGrid Spreadsheet component
+

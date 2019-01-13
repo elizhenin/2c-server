@@ -193,6 +193,23 @@ module.exports = {
         }
         return result;
     },
+    copyPeriodToPeriod: function(report, source, period, org_id){
+        var fs = require("fs");
+        var result ="";
+        sample_filename = this.DBREPORTSSDIR+"/"+report+"/"+"Трафареты"+"/"+"Первичный.xlsx";
+        source_filename = this.DBREPORTSSDIR+"/"+report+"/"+"Первичные"+"/"+source+"/"+org_id+".xlsx";
+        org_filename = this.DBREPORTSSDIR+"/"+report+"/"+"Первичные"+"/"+period+"/"+org_id+".xlsx";
+        if (fs.existsSync(org_filename)){
+            result = true;
+        }else {
+            if (fs.existsSync(source_filename)){
+            fs.copyFileSync(source_filename,org_filename);
+            }else{
+                fs.copyFileSync(sample_filename,org_filename);
+            }
+        }
+        return result;
+    },
     listReportPeriodDocs: function(report,period){
         var fs = require("fs");
         var result ="";

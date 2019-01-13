@@ -39,26 +39,29 @@ module.exports = function (Environment) {
                             Название: RepRights.group.name
                         }
                     };
-                    switch(req.AuthTokenDetails.role){
-                        case "editor":{
-                            Response.push(item);
-                            break;
-                        }
-                        case "receiver":{
-                            if (req.AuthTokenDetails.login == item.Пользователь){
+                    switch (req.AuthTokenDetails.role) {
+                        case "editor":
+                            {
+                                Response.push(item);
+                                break;
+                            }
+                        case "receiver":
+                            {
+                                if (req.AuthTokenDetails.login == item.Пользователь) {
 
-                                Response.push(item);
+                                    Response.push(item);
+                                }
+                                break;
                             }
-                            break;
-                        }
-                        case "sender":{
-                            Groups  = RepWrapper.AuthWrapper.getGroupsByUser(req.AuthTokenDetails.login);
-                            if(Groups.includes(item.Группа.Код)){
-                                Response.push(item);
+                        case "sender":
+                            {
+                                Groups = RepWrapper.AuthWrapper.getGroupsByUser(req.AuthTokenDetails.login);
+                                if (Groups.includes(item.Группа.Код)) {
+                                    Response.push(item);
+                                }
+
+                                break;
                             }
-                            
-                            break;
-                        }
                     }
                 });
                 Response = ResponsePrepare(true, Response, "Список отчетов успешно получен");
@@ -183,7 +186,7 @@ module.exports = function (Environment) {
                 var PeriodsList = RepWrapper.getListPeriod(Request.report);
                 var Response = [];
                 PeriodsList.forEach(period => {
-                    var RepPerRights = RepWrapper.getRightsPeriod(Request.report,period);
+                    var RepPerRights = RepWrapper.getRightsPeriod(Request.report, period);
                     var item = {
                         Название: period,
                         Права: {
@@ -191,10 +194,11 @@ module.exports = function (Environment) {
                             Запись: (RepPerRights.rights.charAt(5) == "-") ? false : true
                         }
                     };
-                    switch(req.AuthTokenDetails.role){
-                        default:{
-                            Response.push(item);
-                        }
+                    switch (req.AuthTokenDetails.role) {
+                        default:
+                            {
+                                Response.push(item);
+                            }
                     }
                 });
                 Response = ResponsePrepare(true, Response, "Список периодов успешно получен");
@@ -278,13 +282,13 @@ module.exports = function (Environment) {
                             Response = ResponsePrepare(true, Response, "Период успешно переименован");
                             break;
                         }
-                        case "rights":
+                    case "rights":
                         {
                             Response = RepWrapper.rightsReportPeriod(Request.report, Request.period, Request.access);
                             Response = ResponsePrepare(true, Response, "Доступ к периоду изменен");
                             break;
                         }
-                    
+
                 }
 
                 res.send(Response);
@@ -356,12 +360,27 @@ module.exports = function (Environment) {
                 //copy template file from report's directory to period's directory, and rename it to user organisation's name
                 var Request = req.query;
                 var Response = false;
-                switch(req.AuthTokenDetails.role){
-                    case "sender":{
-                        RepWrapper.copySampleToPeriod(Request.report,Request.period,RepWrapper.AuthWrapper.getOrgByUser(req.AuthTokenDetails.login));
-                        Response = Environment.api_url_prefix + api_documents_prefix + "/download/"+ Request.report + "/Первичные/"+Request.period+"/"+RepWrapper.AuthWrapper.getOrgByUser(req.AuthTokenDetails.login)+".xlsx";
-                        break;
-                    }
+                switch (req.AuthTokenDetails.role) {
+                    case "sender":
+                        {
+                            var RepPerRights = RepWrapper.getRightsPeriod(Request.report, Request.period);
+                            if (RepPerRights.rights.charAt(5) != "-") {
+                            switch (Request.type) {
+                                case "sample":
+                                    {
+                                        RepWrapper.copySampleToPeriod(Request.report, Request.period, RepWrapper.AuthWrapper.getOrgByUser(req.AuthTokenDetails.login));
+                                        break;
+                                    }
+                                case "exists":
+                                    {
+                                        RepWrapper.copyPeriodToPeriod(Request.report, Request.source, Request.period, RepWrapper.AuthWrapper.getOrgByUser(req.AuthTokenDetails.login));
+                                        break;
+                                    }
+                            }
+                        }
+                            Response = Environment.api_url_prefix + api_documents_prefix + "/download/" + Request.report + "/Первичные/" + Request.period + "/" + RepWrapper.AuthWrapper.getOrgByUser(req.AuthTokenDetails.login) + ".xlsx";
+                            break;
+                        }
                 }
                 res.send(Response);
             });
@@ -405,16 +424,40 @@ module.exports = function (Environment) {
         .post(Environment.api_url_prefix + api_documents_prefix + "/upload",
             function (req, res) {
                 filename = req.query.filename.replace("/api/documents/download/", "");
-                var JSZip = require("jszip");
-                var new_zip = new JSZip();
-                new_zip.loadAsync(Goodies.base64decode(req.body.Data))
-                    .then(function (zip) {
-                        zip
-                        .generateNodeStream({type:'nodebuffer',streamFiles:true})
-                        .pipe(fs.createWriteStream(Environment.DBREPORTSSDIR+"/"+filename))
-                        .on('finish', function () {
-                         res.send("Успешно сохранено, можете закрыть это окно");
+                file_struct = filename.split("/");
+                var allow_save = false;
+                switch (file_struct[1]) {
+                    case "Первичные":
+                        {
+                            var RepPerRights = RepWrapper.getRightsPeriod(file_struct[0], file_struct[2]);
+                            if (RepPerRights.rights.charAt(5) != "-") {
+                                allow_save = true;
+                            }
+                            break;
+                        }
+                    case "Трафареты":
+                        {
+                            allow_save = true;
+                            break;
+                        }
+                }
+                if (allow_save) {
+                    var JSZip = require("jszip");
+                    var new_zip = new JSZip();
+                    new_zip.loadAsync(Goodies.base64decode(req.body.Data))
+                        .then(function (zip) {
+                            zip
+                                .generateNodeStream({
+                                    type: 'nodebuffer',
+                                    streamFiles: true
+                                })
+                                .pipe(fs.createWriteStream(Environment.DBREPORTSSDIR + "/" + filename))
+                                .on('finish', function () {
+                                    res.send("Успешно сохранено, можете закрыть это окно");
+                                });
                         });
-                    });
+                } else {
+                    res.send("Нельзя сохранить. Закройте это окно");
+                }
             });
 }
