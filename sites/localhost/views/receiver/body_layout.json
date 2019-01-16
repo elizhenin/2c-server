@@ -8,19 +8,19 @@
     },
     "cells": [{
             "id": "a",
-            "text":"Трафареты отчетов",
+            "text":"Отчеты",
             "header": true,
             "collapse": false
         },
         {
             "id": "b",
-            "text":"Периоды и отчеты",
+            "text":"Отчетные периоды",
             "header": true,
             "collapse": false
         },
         {
             "id": "c",
-            "text":"Подробнее",
+            "text":"Первичные результаты",
             "header": true,
             "collapse": false
         }

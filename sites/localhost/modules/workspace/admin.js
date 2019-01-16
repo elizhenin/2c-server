@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
         window.Окна = new dhtmlXWindows();
         Окна.attachViewportTo("body");
         window.ФормыОкон = {};
-        var МенюПользователей = InterfaceLayout.cells("a").attachMenu({
+        window.ТаблицыЭкрана = {};
+        var МенюПользователей = InterfaceLayout.cells("b").attachMenu({
             items: {
                 "id": "main_menu",
                 "items": [{
@@ -47,8 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             var Результат = ЗапросыАПИ.Пользователи.Сохранить(Имя, Пароль, Роль);
                                             Окна.window(id_salt_useradd).close();
                                             ФормыОкон[id_salt_useradd] = false;
-                                            СписокПользователей.clearAll();
-                                            СписокПользователей.parse(ЗапросыАПИ.Пользователи.Список(), "json");
+                                            ТаблицыЭкрана.СписокПользователей.clearAll();
+                                            ТаблицыЭкрана.СписокПользователей.parse(ЗапросыАПИ.Пользователи.Список(), "json");
                                             break;
                                         }
                                     default:
@@ -65,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        var МенюОрганизаций = InterfaceLayout.cells("b").attachMenu({
+        var МенюОрганизаций = InterfaceLayout.cells("a").attachMenu({
             items: {
                 "id": "main_menu",
                 "items": [{
@@ -100,8 +101,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             var Результат = ЗапросыАПИ.Организации.Сохранить(Название, false);
                                             Окна.window(id_salt_orgadd).close();
                                             ФормыОкон[id_salt_orgadd] = false;
-                                            СписокОрганизаций.clearAll();
-                                            СписокОрганизаций.parse(ЗапросыАПИ.Организации.Список(), "json");
+                                            ТаблицыЭкрана.СписокОрганизаций.clearAll();
+                                            ТаблицыЭкрана.СписокОрганизаций.parse(ЗапросыАПИ.Организации.Список(), "json");
                                             break;
                                         }
                                     default:
@@ -153,8 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             var Результат = ЗапросыАПИ.Группы.Сохранить(Название, false);
                                             Окна.window(id_salt_groupadd).close();
                                             ФормыОкон[id_salt_groupadd] = false;
-                                            СписокГрупп.clearAll();
-                                            СписокГрупп.parse(ЗапросыАПИ.Группы.Список(), "json");
+                                            ТаблицыЭкрана.СписокГрупп.clearAll();
+                                            ТаблицыЭкрана.СписокГрупп.parse(ЗапросыАПИ.Группы.Список(), "json");
                                             break;
                                         }
                                     default:
@@ -191,12 +192,36 @@ document.addEventListener('DOMContentLoaded', function() {
             switch (id) {
                 case "add":
                     {
-
+                        var Пользователь = ТаблицыЭкрана.СписокПользователей.getSelectedId();
+                        Пользователь--;
+                        var Группа = ТаблицыЭкрана.СписокГрупп.getSelectedId();
+                        Группа--;
+                        try{
+                            
+                        if(window.СписокПользователей[Пользователь].Роль == "sender"){
+                         ЗапросыАПИ.Группы.ДобавитьПользователя(window.СписокГрупп[Группа].Код, window.СписокПользователей[Пользователь].Имя);
+                         ТаблицыЭкрана.СписокПользователейГруппы.clearAll(); 
+                         ТаблицыЭкрана.СписокПользователейГруппы.parse(ЗапросыАПИ.Группы.СоставГруппы(Хранилище.getItem("ВыбраннаяГруппа")), "json");
+                        }
+                        else{alert("Только пользователи роли сдающего отчеты могут быть добавлены в группы")};
+                        }catch(e){
+                            alert("Выберите пользователя в списке пользователей");
+                        }
                         break;
                     }
                 case "del":
                     {
-
+                        var Пользователь = ТаблицыЭкрана.СписокПользователейГруппы.getSelectedId();
+                        Пользователь--;
+                        var Группа = ТаблицыЭкрана.СписокГрупп.getSelectedId();
+                        Группа--;
+                        try{
+                         ЗапросыАПИ.Группы.УбратьПользователя(window.СписокГрупп[Группа].Код, window.СписокПользователейГруппы[Пользователь].Имя);
+                         ТаблицыЭкрана.СписокПользователейГруппы.clearAll(); 
+                         ТаблицыЭкрана.СписокПользователейГруппы.parse(ЗапросыАПИ.Группы.СоставГруппы(Хранилище.getItem("ВыбраннаяГруппа")), "json");
+                        }catch(e){
+                            alert("Выберите пользователя в списке");
+                        }
                         break;
                     }
                 default:
@@ -204,13 +229,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        var СписокПользователей = InterfaceLayout.cells("a").attachGrid();
-        СписокПользователей.setHeader("Имя входа,Роль");
-        СписокПользователей.setInitWidths("200,*");
-        СписокПользователей.setColTypes("ro,ro");
-        СписокПользователей.init();
-        СписокПользователей.parse(ЗапросыАПИ.Пользователи.Список(), "json");
-        СписокПользователей.attachEvent("onRowDblClicked", function(id, cell) {
+        ТаблицыЭкрана.СписокПользователей = InterfaceLayout.cells("b").attachGrid();
+        ТаблицыЭкрана.СписокПользователей.setHeader("Имя входа,Роль");
+        ТаблицыЭкрана.СписокПользователей.setInitWidths("200,*");
+        ТаблицыЭкрана.СписокПользователей.setColTypes("ro,ro");
+        ТаблицыЭкрана.СписокПользователей.init();
+        ТаблицыЭкрана.СписокПользователей.parse(ЗапросыАПИ.Пользователи.Список(), "json");
+        ТаблицыЭкрана.СписокПользователей.attachEvent("onRowDblClicked", function(id, cell) {
             var id_salt_useredit = Math.random() + "";
             id--;
             Окна.createWindow({
@@ -242,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         "type": "select",
                         "label": "Организация",
                         "options": ВариантыОрганизаций,
-                        "value": window.СписокПользователей[id].Организации[0]
+                        "value": window.СписокПользователей[id].Организация
                     }, 3, 2);
                 }
                 ФормыОкон[id_salt_useredit].attachEvent("onButtonClick", function(id) {
@@ -259,8 +284,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 }
                                 Окна.window(id_salt_useredit).close();
                                 ФормыОкон[id_salt_useredit] = false;
-                                СписокПользователей.clearAll();
-                                СписокПользователей.parse(ЗапросыАПИ.Пользователи.Список(), "json");
+                                ТаблицыЭкрана.СписокПользователей.clearAll();
+                                ТаблицыЭкрана.СписокПользователей.parse(ЗапросыАПИ.Пользователи.Список(), "json");
                                 break;
                             }
                         default:
@@ -270,13 +295,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        var СписокОрганизаций = InterfaceLayout.cells("b").attachGrid();
-        СписокОрганизаций.setHeader("Организация,Код");
-        СписокОрганизаций.setInitWidths("*,100");
-        СписокОрганизаций.setColTypes("ro,ro");
-        СписокОрганизаций.init();
-        СписокОрганизаций.parse(ЗапросыАПИ.Организации.Список(), "json");
-        СписокОрганизаций.attachEvent("onRowDblClicked", function(id, cell) {
+        ТаблицыЭкрана.СписокОрганизаций = InterfaceLayout.cells("a").attachGrid();
+        ТаблицыЭкрана.СписокОрганизаций.setHeader("Организация,Код");
+        ТаблицыЭкрана.СписокОрганизаций.setInitWidths("*,100");
+        ТаблицыЭкрана.СписокОрганизаций.setColTypes("ro,ro");
+        ТаблицыЭкрана.СписокОрганизаций.init();
+        ТаблицыЭкрана.СписокОрганизаций.parse(ЗапросыАПИ.Организации.Список(), "json");
+        ТаблицыЭкрана.СписокОрганизаций.attachEvent("onRowDblClicked", function(id, cell) {
             id--;
             var id_salt_orgedit = Math.random() + "";
             Окна.createWindow({
@@ -291,13 +316,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             ФормыОкон[id_salt_orgedit] = Окна.window(id_salt_orgedit).attachForm();
             ФормыОкон[id_salt_orgedit].loadStruct("/views/admin/org_edit_form.json", "json", function() {
-                ФормыОкон[id_salt_orgedit].setItemValue("name", window.СписокОрганизаций[id].name);
+                ФормыОкон[id_salt_orgedit].setItemValue("name", window.СписокОрганизаций[id].Название);
                 ФормыОкон[id_salt_orgedit].setReadonly("code", true);
                 ФормыОкон[id_salt_orgedit].addItem(null, {
                     "name": "code",
                     "type": "input",
                     "hidden": true,
-                    "value": window.СписокОрганизаций[id].code
+                    "value": window.СписокОрганизаций[id].Код
                 });
                 ФормыОкон[id_salt_orgedit].attachEvent("onButtonClick", function(id) {
                     switch (id) {
@@ -308,8 +333,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 var Результат = ЗапросыАПИ.Организации.Сохранить(Название, Код);
                                 Окна.window(id_salt_orgedit).close();
                                 ФормыОкон[id_salt_orgedit] = false;
-                                СписокОрганизаций.clearAll();
-                                СписокОрганизаций.parse(ЗапросыАПИ.Организации.Список(), "json");
+                                ТаблицыЭкрана.СписокОрганизаций.clearAll();
+                                ТаблицыЭкрана.СписокОрганизаций.parse(ЗапросыАПИ.Организации.Список(), "json");
                                 break;
                             }
                         default:
@@ -319,13 +344,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        var СписокГрупп = InterfaceLayout.cells("c").attachGrid();
-        СписокГрупп.setHeader("Группа,Код");
-        СписокГрупп.setInitWidths("*,100");
-        СписокГрупп.setColTypes("ro,ro");
-        СписокГрупп.init();
-        СписокГрупп.parse(ЗапросыАПИ.Группы.Список(), "json");
-        СписокГрупп.attachEvent("onRowDblClicked", function(id, cell) {
+        ТаблицыЭкрана.СписокГрупп = InterfaceLayout.cells("c").attachGrid();
+        ТаблицыЭкрана.СписокГрупп.setHeader("Группа,Код");
+        ТаблицыЭкрана.СписокГрупп.setInitWidths("*,100");
+        ТаблицыЭкрана.СписокГрупп.setColTypes("ro,ro");
+        ТаблицыЭкрана.СписокГрупп.init();
+        ТаблицыЭкрана.СписокГрупп.parse(ЗапросыАПИ.Группы.Список(), "json");
+        ТаблицыЭкрана.СписокГрупп.attachEvent("onRowDblClicked", function(id, cell) {
             id--;
             var id_salt_groupedit = Math.random() + "";
             Окна.createWindow({
@@ -340,13 +365,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             ФормыОкон[id_salt_groupedit] = Окна.window(id_salt_groupedit).attachForm();
             ФормыОкон[id_salt_groupedit].loadStruct("/views/admin/group_edit_form.json", "json", function() {
-                ФормыОкон[id_salt_groupedit].setItemValue("name", window.СписокГрупп[id].name);
+                ФормыОкон[id_salt_groupedit].setItemValue("name", window.СписокГрупп[id].Название);
                 ФормыОкон[id_salt_groupedit].setReadonly("code", true);
                 ФормыОкон[id_salt_groupedit].addItem(null, {
                     "name": "code",
                     "type": "input",
                     "hidden": true,
-                    "value": window.СписокГрупп[id].code
+                    "value": window.СписокГрупп[id].Код
                 });
                 ФормыОкон[id_salt_groupedit].attachEvent("onButtonClick", function(id) {
                     switch (id) {
@@ -357,8 +382,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 var Результат = ЗапросыАПИ.Группы.Сохранить(Название, Код);
                                 Окна.window(id_salt_groupedit).close();
                                 ФормыОкон[id_salt_groupedit] = false;
-                                СписокГрупп.clearAll();
-                                СписокГрупп.parse(ЗапросыАПИ.Группы.Список(), "json");
+                                ТаблицыЭкрана.СписокГрупп.clearAll();
+                                ТаблицыЭкрана.СписокГрупп.parse(ЗапросыАПИ.Группы.Список(), "json");
                                 break;
                             }
                         default:
@@ -367,18 +392,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
         });
-        СписокГрупп.attachEvent("onRowSelect", function(id, cell) {
+        ТаблицыЭкрана.СписокГрупп.attachEvent("onRowSelect", function(id, cell) {
             id--;
-            СписокПользователейГруппы.clearAll();
-            СписокГрупп.parse(ЗапросыАПИ.Группы.СоставГруппы(window.СписокГрупп[id].code), "json");
+            ТаблицыЭкрана.СписокПользователейГруппы.clearAll();
+            Хранилище.setItem("ВыбраннаяГруппа",window.СписокГрупп[id].Код);
+            ТаблицыЭкрана.СписокПользователейГруппы.parse(ЗапросыАПИ.Группы.СоставГруппы(window.СписокГрупп[id].Код), "json");
             МенюПользователейГруппы.setItemEnabled("add");
             МенюПользователейГруппы.setItemEnabled("del");
         });
-        var СписокПользователейГруппы = InterfaceLayout.cells("d").attachGrid();
-        СписокПользователейГруппы.setHeader("Имя,Организация");
-        СписокПользователейГруппы.setInitWidths("200,*");
-        СписокПользователейГруппы.setColTypes("ro,ro");
-        СписокПользователейГруппы.init();
+        ТаблицыЭкрана.СписокПользователейГруппы = InterfaceLayout.cells("d").attachGrid();
+        ТаблицыЭкрана.СписокПользователейГруппы.setHeader("Имя,Код");
+        ТаблицыЭкрана.СписокПользователейГруппы.setInitWidths("200,*");
+        ТаблицыЭкрана.СписокПользователейГруппы.setColTypes("ro,ro");
+        ТаблицыЭкрана.СписокПользователейГруппы.init();
     });
 
 });

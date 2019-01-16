@@ -14,7 +14,7 @@ module.exports = function (Environment) {
                 (!(fs.lstatSync(TokenCheckFilename).isDirectory()))
             ) {
                 var TokenCheck = fs.readFileSync(TokenCheckFilename).toString();
-                TokenCheck = JSON.parse(decodeURIComponent(Goodies.base64decode(TokenCheck)));
+                TokenCheck = JSON.parse(TokenCheck);
                 req.AuthToken = Token;
                 req.AuthTokenDetails = TokenCheck;
             }
@@ -29,10 +29,10 @@ module.exports = function (Environment) {
                 Request = req.body;
                 Request.login;
                 Request.password = decodeURIComponent(Goodies.base64decode(Request.password));
-                var ResponsePrepare = function (status, token, message) {
+                var ResponsePrepare = function (status, tokenData, message) {
                     Response = {
                         Статус: status,
-                        Токен: token,
+                        ТокенДанные: tokenData,
                         Сообщение: message,
                     };
                     Response = JSON.stringify(Response);
@@ -44,20 +44,20 @@ module.exports = function (Environment) {
                     } else {
                         var date = new Date();
                         date.setDate(date.getDate() + 3);
-                        var Token = {
+                        var randomSeed = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10);
+                        var TokenData = {
                             login: Request.login,
                             role: AuthWrapper.userRole(Request.login),
                             expires: date.toISOString(),
-                            randomSeed: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10)
+                            randomSeed: randomSeed
                         };
-
-                        Token = Goodies.base64encode(encodeURIComponent(JSON.stringify(Token)));
-                        fs.writeFile(Environment.DBTOKENSDIR + "/" + Token, Token, function (err) {
+                        TokenData.Token = Goodies.base64encode(TokenData.role+randomSeed);
+                        fs.writeFile(Environment.DBTOKENSDIR + "/" + TokenData.Token, JSON.stringify(TokenData), function (err) {
                             if (err) {
                                 res.send(ResponsePrepare(false, "", "Ошибка сохранения токена"));
                                 return console.log(err);
                             }
-                            res.send(ResponsePrepare(true, Token, "Авторизовано успешно"));
+                            res.send(ResponsePrepare(true, TokenData, "Авторизовано успешно"));
                         });
                     }
                 });

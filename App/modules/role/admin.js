@@ -2,6 +2,8 @@ module.exports = function (Environment) {
 
     var api_role_admin_prefix = "/role/admin";
     var AuthWrapper = require('../auth-wrapper');
+    AuthWrapper.DBGROUPNAMESDIR = Environment.DBGROUPNAMESDIR;
+    AuthWrapper.DBORGNAMESDIR = Environment.DBORGNAMESDIR;
     var Goodies = require("../goodies");
 
     Environment.app
@@ -23,7 +25,7 @@ module.exports = function (Environment) {
                     var item = {
                         Имя: user,
                         Роль: AuthWrapper.userRole(user),
-                        Организации: AuthWrapper.getOrgByUser(user),
+                        Организация: AuthWrapper.getOrgByUser(user),
                         Группы: AuthWrapper.getGroupsByUser(user)
                     };
                     Response.push(item);
@@ -90,8 +92,8 @@ module.exports = function (Environment) {
                     Response = JSON.stringify(Response);
                     return Response;
                 };
-                var OrgList = AuthWrapper.getOrgList(Environment.DBORGNAMESDIR);
-                
+                var OrgList = AuthWrapper.getOrgList();
+
                 //TODO populate with info about included users
                 var Response = OrgList;
                 Response = ResponsePrepare(true, Response, "Список организаций успешно получен");
@@ -113,7 +115,7 @@ module.exports = function (Environment) {
                     Response = JSON.stringify(Response);
                     return Response;
                 };
-                var createOrg = AuthWrapper.createOrg(Request.name, Request.code, Environment.DBORGNAMESDIR);
+                var createOrg = AuthWrapper.createOrg(Request.name, Request.code);
                 Response = ResponsePrepare(true, createOrg, "Организация сохранена");
 
                 res.send(Response);
@@ -132,7 +134,7 @@ module.exports = function (Environment) {
                     Response = JSON.stringify(Response);
                     return Response;
                 };
-                var GroupList = AuthWrapper.getGroupList(Environment.DBGROUPNAMESDIR);
+                var GroupList = AuthWrapper.getGroupList();
                 //TODO populate with info about included users
                 var Response = GroupList;
                 Response = ResponsePrepare(true, Response, "Список групп успешно получен");
@@ -141,25 +143,25 @@ module.exports = function (Environment) {
             });
 
     Environment.app
-    .get(Environment.api_url_prefix + api_role_admin_prefix + "/add_group",
-        function (req, res) {
-            Request = req.query;
-            var Response;
-            var ResponsePrepare = function (status, items, message) {
-                Response = {
-                    Статус: status, // true/false
-                    Отладка: items,
-                    Сообщение: message
+        .get(Environment.api_url_prefix + api_role_admin_prefix + "/add_group",
+            function (req, res) {
+                Request = req.query;
+                var Response;
+                var ResponsePrepare = function (status, items, message) {
+                    Response = {
+                        Статус: status, // true/false
+                        Отладка: items,
+                        Сообщение: message
+                    };
+                    Response = JSON.stringify(Response);
+                    return Response;
                 };
-                Response = JSON.stringify(Response);
-                return Response;
-            };
-            var createGroup = AuthWrapper.createGroup(Request.name, Request.code, Environment.DBGROUPNAMESDIR);
-            Response = ResponsePrepare(true, createGroup, "Группа сохранена");
+                var createGroup = AuthWrapper.createGroup(Request.name, Request.code);
+                Response = ResponsePrepare(true, createGroup, "Группа сохранена");
 
-            res.send(Response);
-        });
-        Environment.app
+                res.send(Response);
+            });
+    Environment.app
         .get(Environment.api_url_prefix + api_role_admin_prefix + "/get_group_users",
             function (req, res) {
                 Request = req.query;
@@ -175,7 +177,47 @@ module.exports = function (Environment) {
                 };
                 var getGroupUsers = AuthWrapper.getGroupUsers(Request.code);
                 Response = ResponsePrepare(true, getGroupUsers, "Пользователи группы получены");
-    
+
+                res.send(Response);
+            });
+    Environment.app
+        .get(Environment.api_url_prefix + api_role_admin_prefix + "/add_group_user",
+            function (req, res) {
+                Request = req.query;
+                var Response;
+                var ResponsePrepare = function (status, items, message) {
+                    Response = {
+                        Статус: status, // true/false
+                        Отладка: items,
+                        Сообщение: message
+                    };
+                    Response = JSON.stringify(Response);
+                    return Response;
+                };
+                var setUserOrg = AuthWrapper.addGroupUser(Request.group, Request.login);
+
+                Response = ResponsePrepare(true, setUserOrg, "Пользователь добавлен в группу");
+
+                res.send(Response);
+            });
+    Environment.app
+        .get(Environment.api_url_prefix + api_role_admin_prefix + "/del_group_user",
+            function (req, res) {
+                Request = req.query;
+                var Response;
+                var ResponsePrepare = function (status, items, message) {
+                    Response = {
+                        Статус: status, // true/false
+                        Отладка: items,
+                        Сообщение: message
+                    };
+                    Response = JSON.stringify(Response);
+                    return Response;
+                };
+                var setUserOrg = AuthWrapper.delGroupUser(Request.group, Request.login);
+
+                Response = ResponsePrepare(true, setUserOrg, "Пользователь убран из группы");
+
                 res.send(Response);
             });
 }

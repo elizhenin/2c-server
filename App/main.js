@@ -37,7 +37,7 @@ if (cluster.isMaster) { // master process
     Environment.app.use(bodyParser.json({
         limit: Environment.upload_limit
     })); // to support JSON-encoded bodies
-
+    Environment.app.use(bodyParser.urlencoded({ extended: false }));
     var AssignAPI = require('./modules/api');
     AssignAPI(Environment);
     //Static sender

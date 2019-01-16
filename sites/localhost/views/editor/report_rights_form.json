@@ -1,0 +1,7 @@
+[
+    {"type":"settings","position":"label-left","labelWidth":110,"inputWidth":240,
+       "labelAlign":"right"},
+    {"name":"name","type": "input",     "label": "Название",      "value": ""},
+    {"type":"button",   "name":"save", "value":"Сохранить","position":"relative", "inputLeft":150,"inputTop":15}
+
+   ]

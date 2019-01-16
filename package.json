@@ -5,6 +5,8 @@
     "author": "Evgeny Lizhenin",
     "dependencies": {
         "authenticate-pam": "^1.0.2",
-        "express": "^4.16.3"
+        "express": "^4.16.3",
+        "jszip": "^3.1.5",
+        "unzip": "^0.1.11"
     }
 }

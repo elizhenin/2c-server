@@ -1,5 +1,7 @@
 module.exports = {
-    auth: function(login, password, next) {
+    DBGROUPNAMESDIR: false, // to be set from outhere
+    DBORGNAMESDIR: false, // to be set from outhere
+    auth: function (login, password, next) {
         var PAM = require('authenticate-pam');
         PAM.authenticate("2c_" + login, password, next);
     },
@@ -7,7 +9,7 @@ module.exports = {
     rolePrefix: "2c_role_",
     orgPrefix: "2c_org_",
     groupPrefix: "2c_group_",
-    userRole: function(login) {
+    userRole: function (login) {
         login = this.userPrefix + login;
         var execSync = require('child_process').execSync;
         result = execSync('groups ' + login).toString('utf8');
@@ -21,7 +23,7 @@ module.exports = {
                 }
             }
         };
-        cleanResult = result.filter(function() {
+        cleanResult = result.filter(function () {
             return true
         });
         var Role = false;
@@ -29,7 +31,7 @@ module.exports = {
         return Role;
     },
 
-    createUser: function(login, password) {
+    createUser: function (login, password) {
         login = this.userPrefix + login;
         var execSync = require('child_process').execSync;
         try {
@@ -47,7 +49,7 @@ module.exports = {
         return result;
     },
 
-    setUserRole: function(login, role) {
+    setUserRole: function (login, role) {
         var currentRole = this.userRole(login);
         var result = "";
         var execSync = require('child_process').execSync;
@@ -68,7 +70,7 @@ module.exports = {
         return result;
     },
 
-    getList: function() {
+    getList: function () {
         var execSync = require('child_process').execSync;
         result = execSync('getent passwd | grep "' + this.userPrefix + '"').toString('utf8');
         result = result.split("\n");
@@ -80,7 +82,7 @@ module.exports = {
         return (CleanResult);
     },
 
-    getOrgByUser: function(user) {
+    getOrgByUser: function (user) {
         user = this.userPrefix + user;
         var execSync = require('child_process').execSync;
         result = execSync('groups ' + user).toString('utf8');
@@ -94,15 +96,15 @@ module.exports = {
                 }
             }
         };
-        cleanResult = result.filter(function() {
+        cleanResult = result.filter(function () {
             return true
         });
-        var Organisations = false;
-        if (cleanResult.length > 0) Organisations = cleanResult;
-        return Organisations;
+        var Organisation = false;
+        if (cleanResult.length > 0) Organisation = cleanResult[0];
+        return Organisation;
     },
 
-    getGroupsByUser: function(user) {
+    getGroupsByUser: function (user) {
         user = this.userPrefix + user;
         var execSync = require('child_process').execSync;
         result = execSync('groups ' + user).toString('utf8');
@@ -116,7 +118,7 @@ module.exports = {
                 }
             }
         };
-        cleanResult = result.filter(function() {
+        cleanResult = result.filter(function () {
             return true
         });
         var Groups = false;
@@ -124,18 +126,14 @@ module.exports = {
         return Groups;
     },
 
-    setUserOrg: function(login, org) {
+    setUserOrg: function (login, org) {
         var currentOrg = this.getOrgByUser(login);
         var result = "";
         var execSync = require('child_process').execSync;
-        if (currentOrg) {
-            currentOrg.forEach(element => {
-                try {
-                    execSync('gpasswd -d ' + this.userPrefix + login + ' ' + this.orgPrefix + element).toString('utf8');
-                } catch (err) {
-                    result += err;
-                }
-            });
+        try {
+            execSync('gpasswd -d ' + this.userPrefix + login + ' ' + this.orgPrefix + currentOrg).toString('utf8');
+        } catch (err) {
+            result += err;
         }
         try {
             result += "\n" + execSync('usermod -a -G ' + this.orgPrefix + org + ' ' + this.userPrefix + login).toString('utf8');
@@ -147,7 +145,7 @@ module.exports = {
         return result;
     },
 
-    getOrgList: function(DBORGNAMESDIR) {
+    getOrgList: function () {
         var fs = require("fs");
         var execSync = require('child_process').execSync;
         try {
@@ -159,30 +157,44 @@ module.exports = {
         var CleanResult = [];
         result.forEach(element => {
             element = element.split(':')[0].replace(this.orgPrefix, "");
-            if (element.length > 0) CleanResult.push({
-                code: element,
-                name: fs.readFileSync(DBORGNAMESDIR + "/" + this.orgPrefix + element).toString()
-            });
+            if (element.length > 0) try {
+                CleanResult.push({
+                    Код: element,
+                    Название: fs.readFileSync(this.DBORGNAMESDIR + "/" + this.orgPrefix + element).toString()
+                });
+            } catch (e) {
+                CleanResult.push({
+                    Код: element,
+                    Название: element
+                });
+            }
         });
         return CleanResult;
     },
+    getOrgNameByCode: function (code) {
+        try {
+            var fs = require("fs");
+            return fs.readFileSync(this.DBORGNAMESDIR + "/" + this.orgPrefix + code).toString();
+        } catch (e) {
+            return false;
+        }
+    },
 
-
-    createOrg: function(name, code, DBORGNAMESDIR) {
+    createOrg: function (name, code) {
         var fs = require('fs');
         var execSync = require('child_process').execSync;
         var result = "";
         if (code == "false") {
             code = 1;
-            while (fs.existsSync(DBORGNAMESDIR + "/" + this.orgPrefix + ("000000000" + code).slice(-9))) {
-                console.log(fs.existsSync(DBORGNAMESDIR + "/" + this.orgPrefix + ("000000000" + code).slice(-9)));
+            while (fs.existsSync(this.DBORGNAMESDIR + "/" + this.orgPrefix + ("000000000" + code).slice(-9))) {
+                console.log(fs.existsSync(this.DBORGNAMESDIR + "/" + this.orgPrefix + ("000000000" + code).slice(-9)));
                 code++;
             }
         }
 
         var filename = this.orgPrefix + ("000000000" + code).slice(-9);
         result += filename + "\n";
-        fs.writeFile(DBORGNAMESDIR + "/" + filename, name, function(err) {});
+        fs.writeFile(this.DBORGNAMESDIR + "/" + filename, name, function (err) {});
         try {
             result += execSync('groupadd ' + filename).toString('utf8');
         } catch (e) {
@@ -191,7 +203,7 @@ module.exports = {
 
         return result;
     },
-    getGroupList: function(DBGROUPNAMESDIR) {
+    getGroupList: function () {
         var fs = require("fs");
         var execSync = require('child_process').execSync;
         try {
@@ -205,33 +217,41 @@ module.exports = {
             element = element.split(':')[0].replace(this.groupPrefix, "");
             if (element.length > 0) try {
                 CleanResult.push({
-                    code: element,
-                    name: fs.readFileSync(DBGROUPNAMESDIR + "/" + this.groupPrefix + element).toString()
+                    Код: element,
+                    Название: this.getGroupNameByCode(element)
                 });
             } catch (e) {
                 CleanResult.push({
-                    code: element,
-                    name: element
+                    Код: element,
+                    Название: element
                 });
             }
         });
         return CleanResult;
     },
-    createGroup: function(name, code, DBGROUPNAMESDIR) {
+    getGroupNameByCode: function (code) {
+        try {
+            var fs = require("fs");
+            return fs.readFileSync(this.DBGROUPNAMESDIR + "/" + this.groupPrefix + code).toString();
+        } catch (e) {
+            return false;
+        }
+    },
+    createGroup: function (name, code) {
         var fs = require('fs');
         var execSync = require('child_process').execSync;
         var result = "";
         if (code == "false") {
             code = 1;
-            while (fs.existsSync(DBGROUPNAMESDIR + "/" + this.groupPrefix + ("000000000" + code).slice(-9))) {
-                console.log(fs.existsSync(DBGROUPNAMESDIR + "/" + this.groupPrefix + ("000000000" + code).slice(-9)));
+            while (fs.existsSync(this.DBGROUPNAMESDIR + "/" + this.groupPrefix + ("000000000" + code).slice(-9))) {
+                console.log(fs.existsSync(this.DBGROUPNAMESDIR + "/" + this.groupPrefix + ("000000000" + code).slice(-9)));
                 code++;
             }
         }
 
         var filename = this.groupPrefix + ("000000000" + code).slice(-9);
         result += filename + "\n";
-        fs.writeFile(DBGROUPNAMESDIR + "/" + filename, name, function(err) {});
+        fs.writeFile(this.DBGROUPNAMESDIR + "/" + filename, name, function (err) {});
         try {
             result += execSync('groupadd ' + filename).toString('utf8');
         } catch (e) {
@@ -240,7 +260,7 @@ module.exports = {
 
         return result;
     },
-    getGroupUsers: function(code) {
+    getGroupUsers: function (code) {
         var execSync = require('child_process').execSync;
         var result = "";
         try {
@@ -253,16 +273,40 @@ module.exports = {
             result = result.split(':')[3];
             result = result.split(',');
             result.forEach(element => {
-                element = element.trim();
+                element = element.trim().replace(this.userPrefix, "");;
+
                 if (element) {
                     CleanResult.push({
-                        login: element,
-                        org: this.getOrgByUser(element)[0]
+                        Имя: element,
+                        Организация: this.getOrgByUser(element)
                     });
                 }
             });
         }
 
         return CleanResult;
+    },
+    addGroupUser: function (group, login) {
+        var result = "";
+        var execSync = require('child_process').execSync;
+        try {
+            result += "\n" + execSync('usermod -a -G ' + this.groupPrefix + group + ' ' + this.userPrefix + login).toString('utf8');
+            result += "\n" + "Добавление в группу " + group;
+        } catch (err) {
+            result += err;
+        }
+
+        return result;
+    },
+    delGroupUser: function (group, login) {
+        var result = "";
+        var execSync = require('child_process').execSync;
+        try {
+            execSync('gpasswd -d ' + this.userPrefix + login + ' ' + this.groupPrefix + group).toString('utf8');
+        } catch (err) {
+            result += err;
+        }
+
+        return result;
     }
 }
