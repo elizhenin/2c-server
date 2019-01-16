@@ -1,0 +1,13 @@
+# copy this file to /lib/systemd/system/
+
+[Unit]
+Description=2C-Server NodeJS Application
+After=network-online.target
+
+[Service]
+Restart=on-failure
+WorkingDirectory=/opt/2c-server/
+ExecStart=/usr/bin/node .
+
+[Install]
+WantedBy=multi-user.target
