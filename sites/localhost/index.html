@@ -40,6 +40,14 @@
         }
     </style>
     <script>
+        window.alert = function(message){
+            dhtmlx.alert({
+                        type:"alert-warning",
+                        ok:"Понятно",
+						text:message
+					});
+        }
+
         function doOnLoad() {
             dhtmlXLayoutCell.prototype.i18n.expand = "Скрыть/Показать";
             window.MainLayout = new dhtmlXLayoutObject({

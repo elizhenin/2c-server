@@ -225,5 +225,27 @@ module.exports = {
             }
         });
         return result;
+    },
+    getSampleMacrosMenu: function(report, sample){
+        var fs = require("fs");
+        var result =false;
+        menuFile = this.DBREPORTSSDIR+"/"+report+"/"+"Трафареты"+"/"+sample+".menu.json";
+        if (fs.existsSync(menuFile)){
+            result = JSON.parse(fs.readFileSync(menuFile, 'utf8'));
+        }else{
+
+        }
+        return result;
+    },
+    setSampleMacrosMenu: function(report, sample, menu){
+        var fs = require("fs");
+        var result =false;
+        menuFile = this.DBREPORTSSDIR+"/"+report+"/"+"Трафареты"+"/"+sample+".menu.json";
+        try{
+        fs.writeFileSync(menuFile,menu);
+        result = true;
+        }catch(e){}
+        
+        return result;
     }
 }

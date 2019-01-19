@@ -311,6 +311,26 @@ window.ЗапросыАПИ = {
                 ]
 
                 return Список;
+            },
+            Меню: {
+                ЗагрузитьСтруктуру: function (Отчет, Трафарет){
+                    var Параметры = {
+                        report: Отчет,
+                        sample: Трафарет
+                    };
+                    var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/documents/macros/menu/list", Параметры, null));
+                   
+                    return ОтветСервера.Меню
+                },
+                СохранитьСтруктуру: function (Отчет, Трафарет, Меню){
+                    var Параметры = {
+                        report: Отчет,
+                        sample: Трафарет,
+                        menu: encodeURIComponent(Меню)
+                    };
+                    var ОтветСервера = JSON.parse(ЗапросыАПИ.GET.Sync("/documents/macros/menu/save", Параметры, null));
+                    
+                }
             }
         },
         Периоды: {

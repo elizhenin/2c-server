@@ -12,21 +12,34 @@ module.exports = function (Environment) {
     RepWrapper.AuthWrapper.DBGROUPNAMESDIR = Environment.DBGROUPNAMESDIR;
     RepWrapper.AuthWrapper.DBORGNAMESDIR = Environment.DBORGNAMESDIR;
     var api_documents_prefix = "/documents";
+    var ResponsePrepare = function (Response) {
+        var cache = [];
+        Response = JSON.stringify(Response, function (key, value) {
+            if (typeof value === 'object' && value !== null) {
+                if (cache.indexOf(value) !== -1) {
+                    // Duplicate reference found
+                    try {
+                        // If this value does not reference a parent it can be deduped
+                        return JSON.parse(JSON.stringify(value));
+                    } catch (error) {
+                        // discard key if value cannot be deduped
+                        return;
+                    }
+                }
+                // Store value in our collection
+                cache.push(value);
+            }
+            return value;
+        });
+        cache = null; // Enable garbage collection
+        return Response;
+    };
 
     // Reports functions
     Environment.app
         .get(Environment.api_url_prefix + api_documents_prefix + "/reports/list",
             function (req, res) {
                 var Response;
-                var ResponsePrepare = function (status, items, message) {
-                    Response = {
-                        Статус: status, // true/false
-                        Отчеты: items,
-                        Сообщение: message
-                    };
-                    Response = JSON.stringify(Response);
-                    return Response;
-                };
                 var ReportsList = RepWrapper.getList();
                 var Response = [];
                 ReportsList.forEach(report => {
@@ -64,7 +77,11 @@ module.exports = function (Environment) {
                             }
                     }
                 });
-                Response = ResponsePrepare(true, Response, "Список отчетов успешно получен");
+                Response = ResponsePrepare({
+                        Статус: true,
+                        Отчеты: Response,
+                        Сообщение:  "Список отчетов успешно получен"
+                    });
 
                 res.send(Response);
             });
@@ -78,36 +95,12 @@ module.exports = function (Environment) {
         .get(Environment.api_url_prefix + api_documents_prefix + "/reports/add",
             function (req, res) {
                 var Request = req.query;
-                var Response;
-                var ResponsePrepare = function (status, items, message) {
-                    Response = {
-                        Статус: status, // true/false
-                        Сервер: items,
-                        Сообщение: message
-                    };
-                    var cache = [];
-                    Response = JSON.stringify(Response, function (key, value) {
-                        if (typeof value === 'object' && value !== null) {
-                            if (cache.indexOf(value) !== -1) {
-                                // Duplicate reference found
-                                try {
-                                    // If this value does not reference a parent it can be deduped
-                                    return JSON.parse(JSON.stringify(value));
-                                } catch (error) {
-                                    // discard key if value cannot be deduped
-                                    return;
-                                }
-                            }
-                            // Store value in our collection
-                            cache.push(value);
-                        }
-                        return value;
-                    });
-                    cache = null; // Enable garbage collection
-                    return Response;
-                };
                 var Response = RepWrapper.newReport(Request.name);
-                Response = ResponsePrepare(true, Response, "Новый отчет успешно создан");
+                Response = ResponsePrepare({
+                    Статус: true,
+                    Сервер: Response,
+                    Сообщение: "Новый отчет успешно создан"
+                });
                 res.send(Response);
             });
     Environment.app
@@ -115,45 +108,25 @@ module.exports = function (Environment) {
             function (req, res) {
                 var Request = req.query;
                 var Response;
-                var ResponsePrepare = function (status, items, message) {
-                    Response = {
-                        Статус: status, // true/false
-                        Сервер: items,
-                        Сообщение: message
-                    };
-                    var cache = [];
-                    Response = JSON.stringify(Response, function (key, value) {
-                        if (typeof value === 'object' && value !== null) {
-                            if (cache.indexOf(value) !== -1) {
-                                // Duplicate reference found
-                                try {
-                                    // If this value does not reference a parent it can be deduped
-                                    return JSON.parse(JSON.stringify(value));
-                                } catch (error) {
-                                    // discard key if value cannot be deduped
-                                    return;
-                                }
-                            }
-                            // Store value in our collection
-                            cache.push(value);
-                        }
-                        return value;
-                    });
-                    cache = null; // Enable garbage collection
-                    return Response;
-                };
-                var Response;
                 switch (Request.operation) {
                     case "rename":
                         {
                             Response = RepWrapper.renameReport(Request.current, Request.new);
-                            Response = ResponsePrepare(true, Response, "Отчет успешно переименован");
+                            Response = ResponsePrepare({
+                                Статус: true, 
+                                Сервер: Response, 
+                                Сообщение: "Отчет успешно переименован"
+                            });
                             break;
                         }
                     case "rights":
                         {
                             Response = RepWrapper.setRightsReport(Request.name, Request.user, Request.group);
-                            Response = ResponsePrepare(true, Response, "Права отчета успешно назначены");
+                            Response = ResponsePrepare({
+                                Статус: true, 
+                                Сервер: Response, 
+                                Сообщение: "Права отчета успешно назначены"
+                            });
 
                             break;
                         }
@@ -173,18 +146,8 @@ module.exports = function (Environment) {
             function (req, res) {
                 //list names of periods of given report and their creation time, ordered by creation time
                 var Request = req.query;
-                var Response;
-                var ResponsePrepare = function (status, items, message) {
-                    Response = {
-                        Статус: status, // true/false
-                        Периоды: items,
-                        Сообщение: message
-                    };
-                    Response = JSON.stringify(Response);
-                    return Response;
-                };
                 var PeriodsList = RepWrapper.getListPeriod(Request.report);
-                var Response = [];
+                var Response;
                 PeriodsList.forEach(period => {
                     var RepPerRights = RepWrapper.getRightsPeriod(Request.report, period);
                     var item = {
@@ -201,7 +164,11 @@ module.exports = function (Environment) {
                             }
                     }
                 });
-                Response = ResponsePrepare(true, Response, "Список периодов успешно получен");
+                Response = ResponsePrepare({
+                    Статус: true, 
+                    Периоды: Response, 
+                    Сообщение: "Список периодов успешно получен"
+                });
 
                 res.send(Response);
             });
@@ -209,36 +176,12 @@ module.exports = function (Environment) {
         .get(Environment.api_url_prefix + api_documents_prefix + "/periods/add",
             function (req, res) {
                 var Request = req.query;
-                var Response;
-                var ResponsePrepare = function (status, items, message) {
-                    Response = {
-                        Статус: status, // true/false
-                        Сервер: items,
-                        Сообщение: message
-                    };
-                    var cache = [];
-                    Response = JSON.stringify(Response, function (key, value) {
-                        if (typeof value === 'object' && value !== null) {
-                            if (cache.indexOf(value) !== -1) {
-                                // Duplicate reference found
-                                try {
-                                    // If this value does not reference a parent it can be deduped
-                                    return JSON.parse(JSON.stringify(value));
-                                } catch (error) {
-                                    // discard key if value cannot be deduped
-                                    return;
-                                }
-                            }
-                            // Store value in our collection
-                            cache.push(value);
-                        }
-                        return value;
-                    });
-                    cache = null; // Enable garbage collection
-                    return Response;
-                };
                 var Response = RepWrapper.newReportPeriod(Request.report, Request.name);
-                Response = ResponsePrepare(true, Response, "Новый период успешно создан");
+                Response = ResponsePrepare({
+                    Статус: true, 
+                    Сервер: Response, 
+                    Сообщение: "Новый период успешно создан"
+                });
                 res.send(Response);
                 res.send(false);
             });
@@ -247,45 +190,25 @@ module.exports = function (Environment) {
             function (req, res) {
                 var Request = req.query;
                 var Response;
-                var ResponsePrepare = function (status, items, message) {
-                    Response = {
-                        Статус: status, // true/false
-                        Сервер: items,
-                        Сообщение: message
-                    };
-                    var cache = [];
-                    Response = JSON.stringify(Response, function (key, value) {
-                        if (typeof value === 'object' && value !== null) {
-                            if (cache.indexOf(value) !== -1) {
-                                // Duplicate reference found
-                                try {
-                                    // If this value does not reference a parent it can be deduped
-                                    return JSON.parse(JSON.stringify(value));
-                                } catch (error) {
-                                    // discard key if value cannot be deduped
-                                    return;
-                                }
-                            }
-                            // Store value in our collection
-                            cache.push(value);
-                        }
-                        return value;
-                    });
-                    cache = null; // Enable garbage collection
-                    return Response;
-                };
-                var Response;
                 switch (Request.operation) {
                     case "rename":
                         {
                             Response = RepWrapper.renameReportPeriod(Request.report, Request.current, Request.new);
-                            Response = ResponsePrepare(true, Response, "Период успешно переименован");
+                            Response = ResponsePrepare({
+                                Статус: true, 
+                                Сервер: Response, 
+                                Сообщение: "Период успешно переименован"
+                            });
                             break;
                         }
                     case "rights":
                         {
                             Response = RepWrapper.rightsReportPeriod(Request.report, Request.period, Request.access);
-                            Response = ResponsePrepare(true, Response, "Доступ к периоду изменен");
+                            Response = ResponsePrepare({
+                                Статус: true, 
+                                Сервер: Response, 
+                                Сообщение: "Доступ к периоду изменен"
+                            });
                             break;
                         }
 
@@ -304,36 +227,12 @@ module.exports = function (Environment) {
         .get(Environment.api_url_prefix + api_documents_prefix + "/document/list",
             function (req, res) {
                 var Request = req.query;
-                var Response;
-                var ResponsePrepare = function (status, items, message) {
-                    Response = {
-                        Статус: status, // true/false
-                        Отчеты: items,
-                        Сообщение: message
-                    };
-                    var cache = [];
-                    Response = JSON.stringify(Response, function (key, value) {
-                        if (typeof value === 'object' && value !== null) {
-                            if (cache.indexOf(value) !== -1) {
-                                // Duplicate reference found
-                                try {
-                                    // If this value does not reference a parent it can be deduped
-                                    return JSON.parse(JSON.stringify(value));
-                                } catch (error) {
-                                    // discard key if value cannot be deduped
-                                    return;
-                                }
-                            }
-                            // Store value in our collection
-                            cache.push(value);
-                        }
-                        return value;
-                    });
-                    cache = null; // Enable garbage collection
-                    return Response;
-                };
                 var Response = RepWrapper.listReportPeriodDocs(Request.report, Request.period);
-                Response = ResponsePrepare(true, Response, "Список первичных отчетов успешно получен");
+                Response = ResponsePrepare({
+                    Статус: true, 
+                    Отчеты: Response, 
+                    Сообщение: "Список первичных отчетов успешно получен"
+                });
                 res.send(Response);
             });
     Environment.app
@@ -365,19 +264,19 @@ module.exports = function (Environment) {
                         {
                             var RepPerRights = RepWrapper.getRightsPeriod(Request.report, Request.period);
                             if (RepPerRights.rights.charAt(5) != "-") {
-                            switch (Request.type) {
-                                case "sample":
-                                    {
-                                        RepWrapper.copySampleToPeriod(Request.report, Request.period, RepWrapper.AuthWrapper.getOrgByUser(req.AuthTokenDetails.login));
-                                        break;
-                                    }
-                                case "exists":
-                                    {
-                                        RepWrapper.copyPeriodToPeriod(Request.report, Request.source, Request.period, RepWrapper.AuthWrapper.getOrgByUser(req.AuthTokenDetails.login));
-                                        break;
-                                    }
+                                switch (Request.type) {
+                                    case "sample":
+                                        {
+                                            RepWrapper.copySampleToPeriod(Request.report, Request.period, RepWrapper.AuthWrapper.getOrgByUser(req.AuthTokenDetails.login));
+                                            break;
+                                        }
+                                    case "exists":
+                                        {
+                                            RepWrapper.copyPeriodToPeriod(Request.report, Request.source, Request.period, RepWrapper.AuthWrapper.getOrgByUser(req.AuthTokenDetails.login));
+                                            break;
+                                        }
+                                }
                             }
-                        }
                             Response = Environment.api_url_prefix + api_documents_prefix + "/download/" + Request.report + "/Первичные/" + Request.period + "/" + RepWrapper.AuthWrapper.getOrgByUser(req.AuthTokenDetails.login) + ".xlsx";
                             break;
                         }
@@ -460,4 +359,28 @@ module.exports = function (Environment) {
                     res.send("Нельзя сохранить. Закройте это окно");
                 }
             });
+    Environment.app
+        .get(Environment.api_url_prefix + api_documents_prefix + "/macros/menu/list",
+            function (req, res) {
+                var Request = req.query;
+                var Response = false;
+                Response = ResponsePrepare({
+                        Статус: true, 
+                        Меню: RepWrapper.getSampleMacrosMenu(Request.report, Request.sample), 
+                        Сообщение: "Меню успешно получено"
+                    });
+                res.send(Response);
+            });
+            Environment.app
+            .get(Environment.api_url_prefix + api_documents_prefix + "/macros/menu/save",
+                function (req, res) {
+                    var Request = req.query;
+                    var Response = false;
+                    Response = ResponsePrepare({
+                            Статус: true, 
+                            Меню: RepWrapper.setSampleMacrosMenu(Request.report, Request.sample,  decodeURIComponent(Request.menu)), 
+                            Сообщение: "Меню успешно сохранено"
+                        });
+                    res.send(Response);
+                });
 }

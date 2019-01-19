@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ДождатьсяЭлемента(MainLayout, function () {
         window.InterfaceLayout = MainLayout.cells("a").attachLayout(РазбивкаЭкрана);
         InterfaceLayout.cells("a").setWidth(Math.round(document.body.clientWidth / 3));
+        InterfaceLayout.cells("b").setHeight(Math.round(document.body.clientHeight / 3));
 
         window.Окна = new dhtmlXWindows();
         Окна.attachViewportTo("body");
@@ -211,44 +212,185 @@ document.addEventListener('DOMContentLoaded', function () {
             ТаблицыЭкрана.СписокОтчетов.attachEvent("onSelect", function(id) {
                 try{
                 ТаблицыЭкрана.СписокТрафаретов.unload();
+                ТаблицыЭкрана.СписокМакросов.unload();
                 }catch(e){};
                 if (id.startsWith("item_")) {
-    
-                    ТаблицыЭкрана.СписокТрафаретов = InterfaceLayout.cells("b").attachTreeView({
-                        iconset: "font_awesome",
-                        multiselect: false, // boolean, optional, enables multiselect
-                        checkboxes: false, // boolean, optional, enables checkboxes
-                        dnd: false, // boolean, optional, enables drag-and-drop
-                        items: ЗапросыАПИ.Отчеты.Трафареты.СписокДерево(ТаблицыЭкрана.СписокОтчетов.getItemText(id))
-                    });
-                    ТаблицыЭкрана.СписокТрафаретов.attachEvent("onDblClick", function(id) {
-                        var filename = "/api/documents/download/"+ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId()) + "/Трафареты/"+ТаблицыЭкрана.СписокТрафаретов.getItemText(id);
-                        filename = encodeURIComponent(filename);
-                        var id_salt_editor = Math.random() + "";
-                        Окна.createWindow({
-                            id: id_salt_editor,
-                            text: "Редактор",
-                            left: 10,
-                            top: 10,
-                            width: "600",
-                            height: "300",
-                            center: true,
-                            resize: true
-                        });
-                        Окна.window(id_salt_editor).attachURL("/AppExcel/Excel.html?fileName="+filename);
-                        Окна.window(id_salt_editor).maximize();
-    
-                        return true;
-                    });    
-    
-    
+                    СоздатьСписокТрафаретов(id);
                 }
             });
         };СоздатьСписокОтчетов();
         
- 
+        window.СоздатьСписокТрафаретов = function(id){
+            ТаблицыЭкрана.СписокТрафаретов = InterfaceLayout.cells("b").attachTreeView({
+                iconset: "font_awesome",
+                multiselect: false, // boolean, optional, enables multiselect
+                checkboxes: false, // boolean, optional, enables checkboxes
+                dnd: false, // boolean, optional, enables drag-and-drop
+                items: ЗапросыАПИ.Отчеты.Трафареты.СписокДерево(ТаблицыЭкрана.СписокОтчетов.getItemText(id))
+            });
+            ТаблицыЭкрана.СписокТрафаретов.attachEvent("onDblClick", function(id) {
+                Отчет = ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId());
+                Трафарет = ТаблицыЭкрана.СписокТрафаретов.getItemText(id);                
+            
+                var filename = "/api/documents/download/"+Отчет + "/Трафареты/"+Трафарет;
+                filename = encodeURIComponent(filename);
+                var id_salt_editor = Math.random() + "";
+                Окна.createWindow({
+                    id: id_salt_editor,
+                    text: "Редактор",
+                    left: 10,
+                    top: 10,
+                    width: "600",
+                    height: "300",
+                    center: true,
+                    resize: true
+                });
+                Окна.window(id_salt_editor).attachMenu({
+                    items: {
+                        "id": "main_menu",
+                        "items": ЗапросыАПИ.Отчеты.Трафареты.Меню.ЗагрузитьСтруктуру(Отчет, Трафарет)
+                    }
+                });
+                Окна.window(id_salt_editor).attachURL("/AppExcel/Excel.html?fileName="+filename);
+                Окна.window(id_salt_editor).maximize();
 
-   
+                return false;
+            }); 
+
+            ТаблицыЭкрана.СписокТрафаретов.attachEvent("onSelect", function(id, mode) {
+               if(mode && id.startsWith("item_")){
+                СоздатьСписокМакросов(id);
+               }
+            });
+
+        }
+
+        var МенюМакросов = InterfaceLayout.cells("c").attachMenu({
+            items: {
+                "id": "main_menu",
+                "items": [{
+                        "id": "create",
+                        "text": "Создать"
+                    },
+                    {
+                        "id": "delete",
+                        "text": "Удалить"
+                    }
+                ]
+            }
+        });
+        МенюМакросов.attachEvent("onClick", function (id) {
+            switch (id) {
+                case "create":
+                    {
+                        var Отчет = false;
+                        var Трафарет = false;
+                        try{
+                            Отчет = ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId());
+                            Трафарет = ТаблицыЭкрана.СписокТрафаретов.getItemText(ТаблицыЭкрана.СписокТрафаретов.getSelectedId());                
+                        }catch(e){
+                            alert("Сначала необходимо выбрать трафарет отчета");
+                        }
+                        if( Отчет && Трафарет){
+                        var id_salt_menuadd = Math.random() + "";
+                        Окна.createWindow({
+                            id: id_salt_menuadd,
+                            text: "Добавление элемента",
+                            left: 10,
+                            top: 10,
+                            width: "400",
+                            height: "200",
+                            center: true,
+                            resize: true
+                        });
+                        ФормыОкон[id_salt_menuadd] = Окна.window(id_salt_menuadd).attachForm();
+                        ФормыОкон[id_salt_menuadd].loadStruct("/views/editor/menu_edit_form.json", "json", function () {
+                        
+
+                            ФормыОкон[id_salt_menuadd].attachEvent("onButtonClick", function (id) {
+                                switch (id) {
+                                    case "save":
+                                        {
+                                            var Элемент = ФормыОкон[id_salt_menuadd].getInput("name").value;
+                                            var ИД = ФормыОкон[id_salt_menuadd].getInput("id").value;
+                                            ТаблицыЭкрана.СписокМакросов.addItem(ИД, Элемент, ТаблицыЭкрана.СписокМакросов.getSelectedId());
+                                            break;
+                                        }
+                                    default:
+                                        {}
+                                }
+                            });
+                        });
+                    }
+                        break;
+                    }
+                case "delete":
+                    {
+                        try{
+                        ТаблицыЭкрана.СписокМакросов.deleteItem(ТаблицыЭкрана.СписокМакросов.getSelectedId());       
+                        }catch(e){
+                            alert("Сначала выберите элемент для удаления");
+                        }
+                        break;
+                    }
+                default:
+                    {}
+            }
+        });
+
+        window.СоздатьСписокМакросов = function(id){
+            Отчет = ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId());
+            Трафарет = ТаблицыЭкрана.СписокТрафаретов.getItemText(ТаблицыЭкрана.СписокТрафаретов.getSelectedId());
+            ТаблицыЭкрана.СписокМакросов = InterfaceLayout.cells("c").attachTreeView({
+                multiselect: false, // boolean, optional, enables multiselect
+                checkboxes: false, // boolean, optional, enables checkboxes
+                dnd: true, // boolean, optional, enables drag-and-drop
+                items: [{
+                    id: "root_group",
+                    text: "/",
+                    open: 1,
+                    items:ЗапросыАПИ.Отчеты.Трафареты.Меню.ЗагрузитьСтруктуру(Отчет, Трафарет)
+                }]
+            });
+            ТаблицыЭкрана.СписокМакросов.attachEvent("onDrop", function(id, pId, index){
+                Отчет = ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId());
+                Трафарет = ТаблицыЭкрана.СписокТрафаретов.getItemText(ТаблицыЭкрана.СписокТрафаретов.getSelectedId());
+                
+                var Меню = JSON.stringify(СчитатьДеревоРекурсивно(ТаблицыЭкрана.СписокМакросов.getSubItems("root_group"), ТаблицыЭкрана.СписокМакросов));
+                ЗапросыАПИ.Отчеты.Трафареты.Меню.СохранитьСтруктуру(Отчет, Трафарет,Меню);
+            });
+            ТаблицыЭкрана.СписокМакросов.attachEvent("onAddItem", function(id, pId, index){
+                Отчет = ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId());
+                Трафарет = ТаблицыЭкрана.СписокТрафаретов.getItemText(ТаблицыЭкрана.СписокТрафаретов.getSelectedId());
+                 
+                var Меню = JSON.stringify(СчитатьДеревоРекурсивно(ТаблицыЭкрана.СписокМакросов.getSubItems("root_group"), ТаблицыЭкрана.СписокМакросов));
+                ЗапросыАПИ.Отчеты.Трафареты.Меню.СохранитьСтруктуру(Отчет, Трафарет,Меню);
+            });
+            ТаблицыЭкрана.СписокМакросов.attachEvent("onDeleteItem", function(id, pId, index){
+                Отчет = ТаблицыЭкрана.СписокОтчетов.getItemText(ТаблицыЭкрана.СписокОтчетов.getSelectedId());
+                Трафарет = ТаблицыЭкрана.СписокТрафаретов.getItemText(ТаблицыЭкрана.СписокТрафаретов.getSelectedId());
+                 
+                var Меню = JSON.stringify(СчитатьДеревоРекурсивно(ТаблицыЭкрана.СписокМакросов.getSubItems("root_group"), ТаблицыЭкрана.СписокМакросов));
+                ЗапросыАПИ.Отчеты.Трафареты.Меню.СохранитьСтруктуру(Отчет, Трафарет,Меню);
+            });
+            
+        }
+
+        window.СчитатьДеревоРекурсивно = function(ФрагментДерево, ОбъектДерево){
+            var ФрагментДеревоПолный = [];
+            if(ФрагментДерево.length>0){
+                ФрагментДерево.forEach(Элемент=>{
+                    ФрагментДеревоПолный.push(
+                        {
+                            id: Элемент,
+                            text: ТаблицыЭкрана.СписокМакросов.getItemText(Элемент),
+                            items: СчитатьДеревоРекурсивно(ОбъектДерево.getSubItems(Элемент), ОбъектДерево)
+                        }
+                    );
+                });
+            }
+            return ФрагментДеревоПолный;
+        }
 
     });
 
