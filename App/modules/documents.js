@@ -147,7 +147,7 @@ module.exports = function (Environment) {
                 //list names of periods of given report and their creation time, ordered by creation time
                 var Request = req.query;
                 var PeriodsList = RepWrapper.getListPeriod(Request.report);
-                var Response;
+                var Response = [];
                 PeriodsList.forEach(period => {
                     var RepPerRights = RepWrapper.getRightsPeriod(Request.report, period);
                     var item = {
@@ -307,7 +307,15 @@ module.exports = function (Environment) {
                         and server must return requested information.
                     There more than one way to implement parsing of ods/xls/xlsx sheets, so - not now.
                 */
-                res.send(false);
+               var Request = req.query;
+                var Response = false;
+                //Request.report;
+                //Request.period;
+                //Request.org_id;
+                //Request.worksheet;
+                //Request.cell;
+                Response = RepWrapper.parserGetCellValue(Request.report, Request.period, Request.org_id, Request.worksheet, Request.cell);
+                res.send(Response.toString());
             });
 
     //direct download/upload xlsx by editor request

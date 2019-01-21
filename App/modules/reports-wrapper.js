@@ -247,5 +247,21 @@ module.exports = {
         }catch(e){}
         
         return result;
+    },
+    parserGetCellValue: function(report, period, org_id, sheet, cell_addr){
+        var XLSX = require('xlsx');
+        var workbookFile = this.DBREPORTSSDIR+"/"+report+"/"+"Первичные"+"/"+period+"/"+org_id+".xlsx";
+        try{
+        var workbook = XLSX.readFile(workbookFile);
+        var cell = workbook.Sheets[sheet][cell_addr];
+        var value = (cell ? cell.v : undefined);
+        XLSX = null;
+        workbook = null;
+        cell = null;
+        
+        return value;
+        }catch(e){
+            return false;
+        }
     }
 }
